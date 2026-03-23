@@ -1315,5 +1315,28 @@ window.toast=(msg,type='inf')=>{
   setTimeout(()=>{t.style.transition='all .3s';t.style.opacity='0';t.style.transform='translateX(18px)';setTimeout(()=>t.remove(),300);},3000);
 };
 </script>
+<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBcK4NlRVH4PO3W18kC2YVdo0zyVo1WN_M",
+  authDomain: "inhala-turnos.firebaseapp.com",
+  databaseURL: "https://inhala-turnos-default-rtdb.firebaseio.com",
+  projectId: "inhala-turnos",
+  storageBucket: "inhala-turnos.firebasestorage.app",
+  messagingSenderId: "363766281470",
+  appId: "1:363766281470:web:3b5c2c7b843a58980ee1af"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+console.log("Firebase conectado");
+</script>
+
 </body>
 </html>
