@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -91,41 +91,48 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 .app-layout{display:flex;min-height:100vh;}
 
 /* ── SIDEBAR COLAPSABLE ── */
-.sidebar{width:var(--sb-w);flex-shrink:0;background:var(--ink);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;z-index:50;transition:width .22s cubic-bezier(.4,0,.2,1);overflow:hidden;}
-.sidebar.collapsed{width:58px;}
-.sb-top{padding:22px 18px 16px;display:flex;align-items:center;justify-content:space-between;min-width:var(--sb-w);}
+.sidebar{width:var(--sb-w);flex-shrink:0;background:var(--ink);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;z-index:50;transition:width .26s cubic-bezier(.4,0,.2,1);overflow:visible;}
+.sidebar-inner{display:flex;flex-direction:column;height:100%;overflow:hidden;width:100%;}
+.sidebar.collapsed{width:64px;}
+.sb-top{padding:22px 18px 16px;display:flex;align-items:center;justify-content:flex-start;min-width:var(--sb-w);gap:10px;}
 .sidebar.collapsed .sb-top{justify-content:center;padding:22px 0 16px;}
-.sb-brand{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#fff;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;opacity:1;transition:opacity .15s;}
-.sidebar.collapsed .sb-brand{opacity:0;width:0;pointer-events:none;}
+.sb-brand{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#fff;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;opacity:1;transition:opacity .18s,max-width .26s;max-width:200px;}
+.sidebar.collapsed .sb-brand{opacity:0;max-width:0;pointer-events:none;}
 .sb-brand-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);flex-shrink:0;}
-.sb-collapse-btn{width:26px;height:26px;border-radius:8px;border:none;background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--t);flex-shrink:0;}
-.sb-collapse-btn:hover{background:rgba(255,255,255,.14);color:#fff;}
-.sidebar.collapsed .sb-collapse-btn{margin:0 auto;}
-.sb-divider{height:1px;background:rgba(255,255,255,.07);margin:0 18px 16px;transition:margin .22s;}
+
+/* ── Toggle tab flotante ── */
+.sb-toggle{position:absolute;right:-13px;top:50%;transform:translateY(-50%);width:26px;height:48px;background:var(--ink);border:1.5px solid rgba(255,255,255,.12);border-radius:0 10px 10px 0;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:60;transition:background var(--t),border-color var(--t),box-shadow var(--t);box-shadow:3px 0 12px rgba(0,0,0,.25);}
+.sb-toggle:hover{background:var(--accent);border-color:var(--accent);box-shadow:3px 0 18px rgba(26,79,232,.4);}
+.sb-toggle svg{width:12px;height:12px;flex-shrink:0;transition:transform .26s cubic-bezier(.4,0,.2,1);}
+.sb-toggle:hover svg path{stroke:#fff;}
+.sb-toggle svg path{stroke:rgba(255,255,255,.55);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;fill:none;transition:stroke .18s;}
+.sidebar.collapsed .sb-toggle svg{transform:rotate(180deg);}
+
+.sb-divider{height:1px;background:rgba(255,255,255,.07);margin:0 18px 16px;transition:margin .26s;}
 .sidebar.collapsed .sb-divider{margin:0 10px 16px;}
 .sb-nav{overflow-y:auto;overflow-x:hidden;flex:1;padding:0 8px 8px;}
 .sidebar.collapsed .sb-nav{padding:0 6px 8px;}
-.sb-section{font-size:9px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.22);padding:14px 10px 6px;display:block;white-space:nowrap;overflow:hidden;transition:opacity .15s,padding .22s;}
+.sb-section{font-size:9px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.22);padding:14px 10px 6px;display:block;white-space:nowrap;overflow:hidden;transition:opacity .15s,padding .22s,height .22s;height:auto;}
 .sidebar.collapsed .sb-section{opacity:0;height:0;padding:0;pointer-events:none;}
 .sb-item{display:flex;align-items:center;gap:10px;padding:9px 10px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.5);cursor:pointer;border:none;background:transparent;width:100%;text-align:left;font-family:'Manrope',sans-serif;transition:all var(--t);border-radius:10px;margin-bottom:1px;position:relative;white-space:nowrap;}
 .sb-item:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.06);}
 .sb-item.active{color:#fff;background:rgba(26,79,232,.25);}
 .sb-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--accent);border-radius:0 3px 3px 0;}
-.sb-item-lbl{overflow:hidden;transition:opacity .15s,width .15s;opacity:1;}
-.sidebar.collapsed .sb-item-lbl{opacity:0;width:0;}
+.sb-item-lbl{overflow:hidden;transition:opacity .18s,max-width .26s;opacity:1;max-width:160px;}
+.sidebar.collapsed .sb-item-lbl{opacity:0;max-width:0;}
 .sidebar.collapsed .sb-badge{display:none!important;}
-.sb-ico{font-size:14px;width:18px;text-align:center;flex-shrink:0;}
+.sb-ico{font-size:15px;width:22px;text-align:center;flex-shrink:0;}
 .sidebar.collapsed .sb-item{justify-content:center;padding:9px 0;}
 .sidebar.collapsed .sb-item.active::before{display:none;}
-.sidebar.collapsed .sb-item:hover::after{content:attr(data-tip);position:absolute;left:56px;top:50%;transform:translateY(-50%);background:var(--ink2);color:#fff;font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;white-space:nowrap;pointer-events:none;z-index:200;box-shadow:var(--s3);}
+.sidebar.collapsed .sb-item:hover::after{content:attr(data-tip);position:absolute;left:62px;top:50%;transform:translateY(-50%);background:var(--ink2);color:#fff;font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;white-space:nowrap;pointer-events:none;z-index:200;box-shadow:var(--s3);}
 .sb-badge{margin-left:auto;font-size:10px;font-weight:800;padding:2px 7px;border-radius:var(--rpill);background:var(--accent);color:#fff;}
-.sb-footer{padding:14px 18px;border-top:1px solid rgba(255,255,255,.07);transition:padding .22s;}
+.sb-footer{padding:14px 18px;border-top:1px solid rgba(255,255,255,.07);transition:padding .26s;}
 .sidebar.collapsed .sb-footer{padding:14px 8px;}
 .sb-user{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r12);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);}
 .sidebar.collapsed .sb-user{justify-content:center;padding:8px 4px;gap:0;}
 .sb-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
-.sb-uinfo{overflow:hidden;transition:opacity .15s,width .15s;}
-.sidebar.collapsed .sb-uinfo{opacity:0;width:0;}
+.sb-uinfo{overflow:hidden;transition:opacity .18s,max-width .26s;max-width:160px;}
+.sidebar.collapsed .sb-uinfo{opacity:0;max-width:0;}
 .sb-uname{font-size:12px;font-weight:700;color:#fff;line-height:1.3;white-space:nowrap;}
 .sb-urole{font-size:10px;color:rgba(255,255,255,.35);font-weight:500;white-space:nowrap;}
 .sb-logout{margin-left:auto;width:26px;height:26px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,.3);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--t);flex-shrink:0;}
@@ -205,15 +212,15 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 .sl::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
 .sl.free{background:var(--emerald-light);border:1.5px dashed #6EE7B7;}.sl.free::after{background:var(--emerald);}
 .sl.free:hover{background:#C7F5E5;transform:scale(1.025);}
-.sl.mine{background:var(--accent-light);border:1.5px solid #93BBFF;}.sl.mine::after{background:var(--accent);}
-.sl.mine:hover{opacity:.82;transform:scale(1.01);}
-.sl.taken{background:#FEF0F7;border:1.5px solid #F9A8D4;cursor:default;}.sl.taken::after{background:#EC4899;}
-.sl.locked{background:#FFF7ED;border:1.5px solid #FCD34D;cursor:default;}.sl.locked::after{background:var(--amber);}
 .sl.blkd{background:#F1F5F9;border:1.5px solid #CBD5E1;cursor:default;}.sl.blkd::after{background:#94A3B8;}
+.sl.ongoing{background:#ECFDF5;border:1.5px solid #6EE7B7;cursor:default;}.sl.ongoing::after{background:#10B981;}
+.sl.ongoing .sl-st{color:#065F46;}.sl.ongoing .sl-nm{color:#065F46;}
+.sl.prof{cursor:default;}.sl.prof::after{background:var(--prof-color,#94A3B8);}
+.sl.prof.clickable{cursor:pointer;}.sl.prof.clickable:hover{opacity:.82;transform:scale(1.01);}
+.book-notice{margin-top:14px;padding:10px 14px;border-radius:var(--r12);background:#F0FDF4;border:1.5px solid #6EE7B7;font-size:12px;font-weight:600;color:#065F46;display:flex;align-items:center;gap:8px;}
+.blk-date-range{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .sl-st{font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:1px;}
-.sl.free .sl-st{color:#065F46;}.sl.mine .sl-st{color:var(--accent3);}.sl.taken .sl-st{color:#831843;}
-.sl.locked .sl-st,.sl.locked .sl-nm{color:#92400E;}
-.sl.blkd .sl-st{color:var(--ink4);}
+.sl.free .sl-st{color:#065F46;}.sl.blkd .sl-st{color:var(--ink4);}
 .sl-nm{font-size:11px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .fchip{min-height:44px;border-radius:9px;background:var(--emerald-light);border:1.5px dashed #6EE7B7;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:5px;transition:all var(--t);}
 .fchip:hover{background:#C7F5E5;transform:scale(1.025);}
@@ -236,17 +243,21 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 .rs-chip.free{background:var(--emerald-light);color:#065F46;cursor:pointer;}.rs-chip.free:hover{background:#C7F5E5;}
 .rs-chip.mine{background:var(--accent-light);color:var(--accent3);cursor:pointer;}
 .rs-chip.taken{background:#FEF0F7;color:#831843;}
-.rs-chip.locked{background:#FFF7ED;color:#92400E;}
+.rs-chip.ongoing{background:#ECFDF5;color:#065F46;font-weight:800;}
 .rs-chip.blkd{background:#F1F5F9;color:var(--ink4);}
 .bk-list{display:flex;flex-direction:column;gap:8px;}
+.bk-section-hd{font-size:10px;font-weight:800;color:var(--ink4);text-transform:uppercase;letter-spacing:.8px;padding:4px 2px 2px;}
 .bk-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r16);box-shadow:var(--s1);padding:14px 16px;display:flex;align-items:center;gap:12px;transition:box-shadow var(--t),transform var(--t);}
 .bk-card:hover{box-shadow:var(--s3);transform:translateY(-1px);}
-.bk-card.locked-card{border-color:#FCD34D;background:#FFFBEB;}
+.bk-status-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;padding:3px 8px;border-radius:var(--rpill);}
+.bk-ongoing-pill{background:#ECFDF5;color:#065F46;}
+.bk-past-pill{background:var(--bg2);color:var(--ink4);}
+.bk-future-pill{background:var(--violet-light);color:#5B21B6;}
+
 .bk-badge{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
 .bk-main{font-size:14px;font-weight:700;color:var(--ink);}
 .bk-date{font-size:12px;color:var(--ink4);margin-top:2px;font-weight:500;}
 .bk-flex{flex:1;}
-.locked-pill{display:inline-flex;align-items:center;gap:4px;background:var(--amber-light);color:#92400E;font-size:10px;font-weight:800;padding:3px 8px;border-radius:var(--rpill);margin-top:4px;}
 .panel-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;}
 @media(max-width:1100px){.panel-layout{grid-template-columns:1fr;}}
 .panel-col-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
@@ -262,7 +273,6 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 .pp-row:last-child,.pr-row:last-child,.blk-row:last-child{border-bottom:none;}
 .pp-row:hover,.pr-row:hover,.blk-row:hover{background:var(--bg);}
 .pr-row.pr-mine{background:var(--accent-xlight);}
-.pr-row.pr-locked{background:#FFFBEB;}
 .pp-av,.pr-av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0;}
 .pp-av{width:34px;height:34px;font-size:13px;}
 .pr-av{width:28px;height:28px;font-size:11px;}
@@ -324,7 +334,7 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 .pill{font-size:10px;font-weight:800;padding:3px 9px;border-radius:var(--rpill);display:inline-block;}
 .p-adm{background:var(--amber-light);color:#92400E;}.p-usr{background:var(--accent-light);color:var(--accent3);}
 .p-today{background:var(--emerald-light);color:#065F46;}.p-past{background:var(--bg2);color:var(--ink4);}
-.p-future{background:var(--violet-light);color:#5B21B6;}.p-locked{background:var(--amber-light);color:#92400E;}
+.p-future{background:var(--violet-light);color:#5B21B6;}
 .btn-primary{padding:9px 18px;border-radius:var(--rpill);border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:12px;font-weight:800;font-family:'Manrope',sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(26,79,232,.25);transition:all var(--t);}
 .btn-primary:hover{transform:translateY(-1px);box-shadow:var(--sa);}
 .btn-outline{padding:9px 18px;border-radius:var(--rpill);border:1.5px solid var(--border);background:var(--white);color:var(--ink2);font-size:12px;font-weight:700;font-family:'Manrope',sans-serif;cursor:pointer;transition:all var(--t);}
@@ -365,8 +375,6 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 .toast-c{position:fixed;bottom:22px;right:22px;z-index:900;display:flex;flex-direction:column;gap:7px;pointer-events:none;}
 .toast{background:var(--white);border-radius:var(--r12);padding:12px 16px;font-size:13px;font-weight:700;box-shadow:var(--s4);display:flex;align-items:center;gap:9px;animation:slideR .3s cubic-bezier(.22,1,.36,1) both;max-width:320px;pointer-events:all;}
 .toast.ok{border-left:3px solid var(--emerald);}.toast.err{border-left:3px solid var(--rose);}.toast.inf{border-left:3px solid var(--accent);}.toast.warn{border-left:3px solid var(--amber);}
-.toast-undo-btn{margin-left:auto;padding:4px 10px;border-radius:var(--rpill);border:1.5px solid var(--border);background:var(--bg);color:var(--accent);font-size:11px;font-weight:800;cursor:pointer;font-family:'Manrope',sans-serif;flex-shrink:0;}
-.toast-undo-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
 .toast-prog{position:absolute;bottom:0;left:0;height:3px;background:var(--amber);border-radius:0 0 0 var(--r12);animation:progBar 5s linear forwards;}
 @keyframes progBar{from{width:100%}to{width:0%}}
 .filter-select{padding:8px 30px 8px 12px;border:1.5px solid var(--border);border-radius:var(--rpill);font-size:12px;font-weight:700;font-family:'Manrope',sans-serif;color:var(--ink);background:var(--white);outline:none;box-shadow:var(--s1);cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%239AA0B2' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;transition:border-color var(--t);}
@@ -420,9 +428,15 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 <div id="appScreen">
  <div class="app-layout">
   <aside class="sidebar" id="sidebar">
+    <!-- Tab flotante de toggle -->
+    <button class="sb-toggle" id="collapseBtn" onclick="toggleSidebar()" title="Expandir / contraer">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </button>
+    <div class="sidebar-inner">
     <div class="sb-top">
       <div class="sb-brand">INHALA<span class="sb-brand-dot"></span></div>
-      <button class="sb-collapse-btn" id="collapseBtn" onclick="toggleSidebar()">◀</button>
     </div>
     <div class="sb-divider"></div>
     <div class="sb-nav">
@@ -451,13 +465,14 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
         <button class="sb-logout" onclick="doLogout()" title="Salir">✕</button>
       </div>
     </div>
+    </div>
   </aside>
   <main class="main-area">
     <div class="reminder-banner" id="reminderBanner">
       <div class="reminder-ico">⏰</div>
       <div class="reminder-body">
         <div class="reminder-ttl" id="reminderTtl"></div>
-        <div class="reminder-sub">Si no lo cancelás antes de que empiece, quedará bloqueado y deberá ser abonado.</div>
+        <div class="reminder-sub">Tu turno empieza pronto. Recordá abonar por transferencia al alias <strong>inhalaconsultorios</strong>.</div>
       </div>
       <div class="reminder-acts">
         <button class="btn-reminder-cancel" onclick="cancelFromReminder()">Cancelar turno</button>
@@ -471,9 +486,8 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
         <div class="pg-acts">
           <div class="legend-pills">
             <div class="lpill"><div class="ldot" style="background:var(--emerald)"></div>Libre</div>
-            <div class="lpill"><div class="ldot" style="background:var(--accent)"></div>Mi turno</div>
-            <div class="lpill"><div class="ldot" style="background:#EC4899"></div>Ocupado</div>
-            <div class="lpill"><div class="ldot" style="background:var(--amber)"></div>Bloqueado/Adeuda</div>
+            <div class="lpill"><div class="ldot" style="background:#94A3B8"></div>Bloqueado</div>
+            <div class="lpill"><div class="ldot" style="background:#10B981"></div>En curso</div>
           </div>
         </div>
       </div>
@@ -565,20 +579,14 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
         <div class="pg-acts"><button class="btn-amber" onclick="openBlockModal()">🔒 Nuevo bloqueo</button></div>
       </div>
       <div class="stats-row" id="blocksStats"></div>
-      <div class="panel-layout">
-        <div>
-          <div class="panel-col-hd"><div class="panel-col-title">🔒 Bloqueos activos</div><span id="blocksCountLbl" style="font-size:11px;font-weight:700;color:var(--ink4)"></span></div>
-          <div class="panel-box">
-            <div class="blk-toolbar">
-              <select class="pr-filter" id="blkTypeF" onchange="renderBlocks()"><option value="">Todo tipo</option><option value="day">Días</option><option value="slot">Horarios</option></select>
-              <select class="pr-filter" id="blkRoomF" onchange="renderBlocks()"><option value="">Todos</option><option value="all">Todos</option><option value="1">C1</option><option value="2">C2</option><option value="3">C3</option><option value="4">C4</option><option value="5">C5</option><option value="6">C6</option></select>
-            </div>
-            <div class="blk-list" id="blkList"></div>
+      <div>
+        <div class="panel-col-hd"><div class="panel-col-title">🔒 Bloqueos activos</div><span id="blocksCountLbl" style="font-size:11px;font-weight:700;color:var(--ink4)"></span></div>
+        <div class="panel-box">
+          <div class="blk-toolbar">
+            <select class="pr-filter" id="blkTypeF" onchange="renderBlocks()"><option value="">Todo tipo</option><option value="day">Días</option><option value="slot">Horarios</option></select>
+            <select class="pr-filter" id="blkRoomF" onchange="renderBlocks()"><option value="">Todos los consultorios</option><option value="all">Todos</option><option value="1">C1</option><option value="2">C2</option><option value="3">C3</option><option value="4">C4</option><option value="5">C5</option><option value="6">C6</option></select>
           </div>
-        </div>
-        <div>
-          <div class="panel-col-hd"><div class="panel-col-title">⚠️ Adeudan pago</div><span id="lockedCountLbl" style="font-size:11px;font-weight:700;color:var(--ink4)"></span></div>
-          <div class="panel-box"><div class="blk-list" id="lockedList"></div></div>
+          <div class="blk-list" id="blkList"></div>
         </div>
       </div>
     </div>
@@ -590,6 +598,7 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 <div class="overlay" id="bookOv">
   <div class="modal"><div class="modal-ico mie">📅</div><div class="modal-ttl" id="bookTtl">Reservar horario</div><div class="modal-sub" id="bookSub"></div>
   <div class="mf-group"><label class="mf-label">Consultorio</label><select class="mf-select" id="bookRoomSel"></select></div>
+  <div class="book-notice">💳 Abonar por transferencia al alias <strong>inhalaconsultorios</strong></div>
   <div class="modal-acts"><button class="btn-mc" onclick="closeOv('bookOv')">Cancelar</button><button class="btn-mok bm-green" onclick="confirmBook()">Confirmar</button></div></div>
 </div>
 <div class="overlay" id="cancelOv">
@@ -597,13 +606,16 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
   <div class="modal-acts"><button class="btn-mc" onclick="closeOv('cancelOv')">Mantener</button><button class="btn-mok bm-red" onclick="confirmCancel()">Sí, cancelar</button></div></div>
 </div>
 <div class="overlay" id="blockOv">
-  <div class="modal modal-lg"><div class="modal-ico mio">🔒</div><div class="modal-ttl">Nuevo bloqueo</div><div class="modal-sub">Bloqueá un día completo o un horario específico.</div>
+  <div class="modal modal-lg"><div class="modal-ico mio">🔒</div><div class="modal-ttl">Nuevo bloqueo</div><div class="modal-sub">Bloqueá un día completo o un horario específico. Podés seleccionar un rango de fechas.</div>
   <div class="mf-group"><label class="mf-label">Tipo</label><select class="mf-select" id="blkType" onchange="toggleBlkType()"><option value="day">Día completo</option><option value="slot">Horario específico</option></select></div>
-  <div class="mf-2col">
-    <div class="mf-group"><label class="mf-label">Fecha</label><input class="mf-input" type="date" id="blkDate"></div>
-    <div class="mf-group" id="blkHourGroup"><label class="mf-label">Hora</label><select class="mf-select" id="blkHour"></select></div>
+  <div class="blk-date-range">
+    <div class="mf-group"><label class="mf-label">Desde</label><input class="mf-input" type="date" id="blkDate" onchange="blkDateSync()"></div>
+    <div class="mf-group"><label class="mf-label">Hasta (opcional)</label><input class="mf-input" type="date" id="blkDateEnd"></div>
   </div>
-  <div class="mf-group"><label class="mf-label">Consultorio</label><select class="mf-select" id="blkRoom"><option value="all">Todos</option><option value="1">C1</option><option value="2">C2</option><option value="3">C3</option><option value="4">C4</option><option value="5">C5</option><option value="6">C6</option></select></div>
+  <div class="mf-2col">
+    <div class="mf-group" id="blkHourGroup"><label class="mf-label">Hora</label><select class="mf-select" id="blkHour"></select></div>
+    <div class="mf-group"><label class="mf-label">Consultorio</label><select class="mf-select" id="blkRoom"><option value="all">Todos</option><option value="1">C1</option><option value="2">C2</option><option value="3">C3</option><option value="4">C4</option><option value="5">C5</option><option value="6">C6</option></select></div>
+  </div>
   <div class="mf-group"><label class="mf-label">Motivo (opcional)</label><input class="mf-input" id="blkReason" placeholder="Feriado, mantenimiento…"></div>
   <div class="modal-acts"><button class="btn-mc" onclick="closeOv('blockOv')">Cancelar</button><button class="btn-mok bm-amber" onclick="confirmBlock()">Bloquear</button></div></div>
 </div>
@@ -658,14 +670,22 @@ const MN=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic
 const RC=['C1','C2','C3','C4','C5','C6'];
 const AV=['av0','av1','av2','av3','av4','av5','av6','av7'];
 const RC_COLORS=['#1A4FE8','#0891B2','#7C3AED','#D97706','#059669','#DB2777'];
-const LOCK_MINUTES=120;
+const PROF_SLOT_COLORS=[
+  {bg:'#EBF0FD',bd:'#93BBFF',lft:'#1A4FE8',txt:'#0D33A8'},
+  {bg:'#E0F2FE',bd:'#67E8F9',lft:'#0891B2',txt:'#164E63'},
+  {bg:'#F0EBFF',bd:'#C4B5FD',lft:'#7C3AED',txt:'#4C1D95'},
+  {bg:'#FEF3C7',bd:'#FCD34D',lft:'#D97706',txt:'#78350F'},
+  {bg:'#DCFCE7',bd:'#6EE7B7',lft:'#059669',txt:'#065F46'},
+  {bg:'#FCE7F3',bd:'#F9A8D4',lft:'#DB2777',txt:'#831843'},
+  {bg:'#FEF0F2',bd:'#FCA5A5',lft:'#E8324A',txt:'#9F1239'},
+  {bg:'#EEF2FF',bd:'#A5B4FC',lft:'#6366F1',txt:'#3730A3'},
+];
 
 // ── STATE ──
 let CU=null, CUProfile=null, wOff=0, selR=0;
 let pBook=null, pCancel=null, metP='week', reminderBkId=null;
 let allBks=[], allUsers=[], allBlocks=[];
 let unsubBks=null, unsubUsers=null, unsubBlocks=null;
-let undoQueue={};
 
 // ── HELPERS ──
 const hasPerm=p=>{if(!CUProfile)return false;if(CUProfile.role==='admin')return true;return Array.isArray(CUProfile.perms)&&CUProfile.perms.includes(p);};
@@ -676,6 +696,7 @@ const sN=n=>{if(!n)return'';const p=n.split(' ');return p.length>2?p.slice(0,2).
 const isToday=s=>s===todK();
 const isPast=s=>s<todK();
 const isFuture=s=>s>todK();
+const getProfColor=name=>PROF_SLOT_COLORS[avI(name||'')];
 const getWkKeys=()=>getWkDates(0).map(dk);
 const getMonthPfx=()=>{const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0');};
 function getWkDates(off=0){const t=new Date();t.setHours(0,0,0,0);const d=t.getDay();const diff=(d===0?-6:1-d);const m=new Date(t);m.setDate(t.getDate()+diff+off*7);return Array.from({length:7},(_,i)=>{const x=new Date(m);x.setDate(m.getDate()+i);return x;});}
@@ -684,9 +705,7 @@ function getWkDates(off=0){const t=new Date();t.setHours(0,0,0,0);const d=t.getD
 let sbCollapsed=false;
 window.toggleSidebar=()=>{
   sbCollapsed=!sbCollapsed;
-  const sb=document.getElementById('sidebar');
-  sb.classList.toggle('collapsed',sbCollapsed);
-  document.getElementById('collapseBtn').textContent=sbCollapsed?'▶':'◀';
+  document.getElementById('sidebar').classList.toggle('collapsed',sbCollapsed);
   localStorage.setItem('it_sb',sbCollapsed?'1':'0');
 };
 
@@ -746,7 +765,6 @@ async function startApp(){
   // Sidebar
   sbCollapsed=localStorage.getItem('it_sb')==='1';
   document.getElementById('sidebar').classList.toggle('collapsed',sbCollapsed);
-  document.getElementById('collapseBtn').textContent=sbCollapsed?'▶':'◀';
   // User info
   const av=document.getElementById('sbAv');
   av.textContent=(CUProfile.name||'?').charAt(0).toUpperCase();
@@ -807,29 +825,19 @@ window.sv=(vid,btn)=>{
   refreshActiveView(vid);
 };
 
-// ── LOCK ──
-async function lockExpiredBookings(){
-  const now=new Date();
-  const toUpdate=allBks.filter(b=>{
-    if(b.locked)return false;
-    const tDate=new Date(b.date+'T'+b.hour+':00');
-    const diff=tDate-now;
-    return diff>0&&diff<LOCK_MINUTES*60*1000;
-  });
-  for(const b of toUpdate){
-    await updateDoc(doc(db,'bookings',b.id),{locked:true});
-  }
-}
+// ── LOCK ── (mantenido solo por compatibilidad con datos existentes)
+async function lockExpiredBookings(){}
 
 // ── REMINDER ──
 function checkReminder(){
   if(!CUProfile)return;
   const now=new Date();
+  const REMIND_MINUTES=60;
   let soonBk=null;
-  allBks.filter(b=>b.userId===CU.uid&&!b.locked).forEach(b=>{
+  allBks.filter(b=>b.userId===CU.uid).forEach(b=>{
     const tDate=new Date(b.date+'T'+b.hour+':00');
     const diff=tDate-now;
-    if(diff>0&&diff<LOCK_MINUTES*60*1000){
+    if(diff>0&&diff<REMIND_MINUTES*60*1000){
       if(!soonBk||tDate<new Date(soonBk.date+'T'+soonBk.hour+':00'))soonBk=b;
     }
   });
@@ -848,6 +856,7 @@ function checkReminder(){
 window.cancelFromReminder=()=>{if(reminderBkId){openCancel(reminderBkId);document.getElementById('reminderBanner').classList.remove('show');}};
 
 // ── SLOT STATE ──
+function curHourKey(){const n=new Date();return String(n.getHours()).padStart(2,'0')+':00';}
 function slotState(dkey,h,r){
   const isBlocked=allBlocks.some(bl=>{
     if(bl.date!==dkey)return false;
@@ -857,7 +866,8 @@ function slotState(dkey,h,r){
   if(isBlocked)return{state:'blkd',bk:null};
   const bk=allBks.find(b=>b.date===dkey&&b.hour===h&&b.room===r);
   if(!bk)return{state:'free',bk:null};
-  if(bk.locked)return{state:'locked',bk};
+  // En curso: es hoy y la hora coincide con la hora actual
+  if(dkey===todK()&&h===curHourKey())return{state:'ongoing',bk};
   if(bk.userId===CU.uid)return{state:'mine',bk};
   return{state:'taken',bk};
 }
@@ -876,7 +886,9 @@ function setChip(btn){document.querySelectorAll('.rc').forEach(b=>b.classList.re
 function renderGrid(){
   const dates=getWkDates(wOff);const tk=todK();
   const d0=dates[0],d6=dates[6];
-  document.getElementById('gridTitle').textContent='Semana del '+d0.getDate()+' '+MN[d0.getMonth()]+' al '+d6.getDate()+' '+MN[d6.getMonth()];
+  const rangeStr=d0.getDate()+' '+MN[d0.getMonth()]+(d0.getMonth()!==d6.getMonth()||d0.getFullYear()!==d6.getFullYear()?'':'')+' — '+d6.getDate()+' '+MN[d6.getMonth()]+' '+d6.getFullYear();
+  document.getElementById('gridTitle').textContent='Semana del '+d0.getDate()+' '+MN[d0.getMonth()]+' al '+d6.getDate()+' '+MN[d6.getMonth()]+' '+d6.getFullYear();
+  const wkRangeEl=document.getElementById('wkRange');if(wkRangeEl)wkRangeEl.textContent=rangeStr;
   const tbl=document.getElementById('mainGrid');tbl.innerHTML='';
   const thead=document.createElement('thead');const hr=document.createElement('tr');
   hr.innerHTML='<th style="width:50px;background:#FAFBFD;border-right:2px solid var(--border)"></th>';
@@ -895,10 +907,19 @@ function renderGrid(){
           if(state==='blkd')return;
           if(state==='free'){fR.push(r);return;}
           const el=document.createElement('div');
-          el.className='sl '+(state==='locked'?'locked':state==='mine'?'mine':'taken');
-          el.style='flex:1;min-width:0;';
-          el.innerHTML=`<div class="sl-st">${state==='locked'?'⚠ Adeuda':'C'+r}</div><div class="sl-nm">${sN(bk.userName)}</div>`;
-          if(state!=='locked'&&((state==='mine'&&hasPerm('cancel'))||hasPerm('cancelAll'))){el.style.cursor='pointer';el.onclick=()=>openCancel(bk.id);}
+          if(state==='ongoing'){
+            el.className='sl ongoing';el.style='flex:1;min-width:0;';
+            el.innerHTML=`<div class="sl-st">🔴 En curso</div><div class="sl-nm">${sN(bk.userName)}</div>`;
+          } else {
+            const pc=getProfColor(bk.userName);
+            const isMe=state==='mine';
+            el.className='sl prof'+(((isMe&&hasPerm('cancel'))||(!isMe&&hasPerm('cancelAll')))?' clickable':'');
+            el.style=`flex:1;min-width:0;background:${pc.bg};border:1.5px solid ${pc.bd};`;
+            el.style.setProperty('--prof-color',pc.lft);
+            el.innerHTML=`<div class="sl-st" style="color:${pc.txt}">${isMe?'✓ Mío':'C'+r}</div><div class="sl-nm" style="color:${pc.txt}">${sN(bk.userName)}</div>`;
+            if(isMe&&hasPerm('cancel')){el.onclick=()=>openCancel(bk.id);}
+            else if(!isMe&&hasPerm('cancelAll')){el.onclick=()=>openCancel(bk.id);}
+          }
           wrap.appendChild(el);
         });
         if(fR.length>0){
@@ -913,9 +934,16 @@ function renderGrid(){
         const el=document.createElement('div');
         if(state==='blkd'){el.className='sl blkd';el.innerHTML='<div class="sl-st">Bloqueado</div>';}
         else if(state==='free'){el.className='sl free';el.innerHTML='<div class="sl-st">Libre</div>';if(hasPerm('book'))el.onclick=()=>openBook(dkey,h,[selR]);else el.style.cursor='default';}
-        else if(state==='locked'){el.className='sl locked';el.innerHTML=`<div class="sl-st">⚠ Adeuda</div><div class="sl-nm">${sN(bk.userName)}</div>`;}
-        else if(state==='mine'){el.className='sl mine';el.innerHTML=`<div class="sl-st">Tu turno</div><div class="sl-nm">${sN(bk.userName)}</div>`;if(hasPerm('cancel')){el.style.cursor='pointer';el.onclick=()=>openCancel(bk.id);}}
-        else{el.className='sl taken';el.innerHTML=`<div class="sl-st">Ocupado</div><div class="sl-nm">${sN(bk.userName)}</div>`;}
+        else if(state==='ongoing'){el.className='sl ongoing';el.innerHTML=`<div class="sl-st">🔴 En curso</div><div class="sl-nm">${sN(bk.userName)}</div>`;}
+        else{
+          const pc=getProfColor(bk.userName);const isMe=state==='mine';
+          el.className='sl prof'+(((isMe&&hasPerm('cancel'))||(!isMe&&hasPerm('cancelAll')))?' clickable':'');
+          el.style=`background:${pc.bg};border:1.5px solid ${pc.bd};`;
+          el.style.setProperty('--prof-color',pc.lft);
+          el.innerHTML=`<div class="sl-st" style="color:${pc.txt}">${isMe?'✓ Mi turno':'Ocupado'}</div><div class="sl-nm" style="color:${pc.txt}">${sN(bk.userName)}</div>`;
+          if(isMe&&hasPerm('cancel')){el.onclick=()=>openCancel(bk.id);}
+          else if(!isMe&&hasPerm('cancelAll')){el.onclick=()=>openCancel(bk.id);}
+        }
         td.appendChild(el);
       }
       tr.appendChild(td);
@@ -942,14 +970,26 @@ function renderRooms(){
       let cls,lbl;
       if(state==='blkd'){cls='blkd';lbl='🔒 Bloqueado';}
       else if(state==='free'){cls='free';lbl='Disponible';}
-      else if(state==='locked'){cls='locked';lbl='⚠ Adeuda — '+sN(bk.userName);}
-      else if(state==='mine'){cls='mine';lbl='✓ Mi turno';}
-      else{cls='taken';lbl=sN(bk.userName);}
+      else if(state==='ongoing'){cls='ongoing';lbl='🔴 En curso — '+sN(bk.userName);}
+      else if(state==='mine'){
+        const pc=getProfColor(bk.userName);
+        const chip2=document.createElement('span');chip2.className='rs-chip';
+        chip2.style.cssText=`background:${pc.bg};color:${pc.txt};border:1.5px solid ${pc.bd};cursor:pointer;`;
+        chip2.textContent='✓ Mi turno';
+        if(hasPerm('cancel'))chip2.onclick=()=>openCancel(bk.id);
+        row.innerHTML=`<span class="rs-time">${h}</span>`;row.appendChild(chip2);bd.appendChild(row);return;
+      }
+      else if(state==='taken'){
+        const pc=getProfColor(bk.userName);
+        const chip2=document.createElement('span');chip2.className='rs-chip';
+        chip2.style.cssText=`background:${pc.bg};color:${pc.txt};border:1.5px solid ${pc.bd};`;
+        chip2.textContent=sN(bk.userName);
+        if(hasPerm('cancelAll'))chip2.onclick=()=>openCancel(bk.id);
+        row.innerHTML=`<span class="rs-time">${h}</span>`;row.appendChild(chip2);bd.appendChild(row);return;
+      }
       const row=document.createElement('div');row.className='rsrow';
       const chip=document.createElement('span');chip.className='rs-chip '+cls;chip.textContent=lbl;
       if(state==='free'&&hasPerm('book'))chip.onclick=()=>openBook(dv,h,[r]);
-      else if(state==='mine'&&hasPerm('cancel'))chip.onclick=()=>openCancel(bk.id);
-      else if(state==='taken'&&hasPerm('cancelAll'))chip.onclick=()=>openCancel(bk.id);
       row.innerHTML=`<span class="rs-time">${h}</span>`;row.appendChild(chip);bd.appendChild(row);
     });
   });
@@ -957,25 +997,50 @@ function renderRooms(){
 
 // ── MY ──
 function renderMy(){
+  const today=todK();const curH=curHourKey();
   const bks=allBks.filter(b=>b.userId===CU.uid).sort((a,b)=>a.date.localeCompare(b.date)||a.hour.localeCompare(b.hour));
   const list=document.getElementById('myList');list.innerHTML='';
   if(!bks.length){list.innerHTML='<div class="empty"><div class="empty-i">📭</div><div class="empty-t">Sin turnos reservados</div></div>';return;}
-  bks.forEach(b=>{
-    const d=new Date(b.date+'T12:00:00');const item=document.createElement('div');
-    item.className='bk-card'+(b.locked?' locked-card':'');
-    item.innerHTML=`<div class="bk-badge ${RC[b.room-1]}">C${b.room}</div>
-      <div class="bk-flex"><div class="bk-main">Consultorio ${b.room} — ${b.hour} hs</div>
-      <div class="bk-date">${DL[d.getDay()]}, ${d.getDate()} de ${MN[d.getMonth()]}${isPast(b.date)?' · <span style="color:var(--ink4)">Pasado</span>':''}</div>
-      ${b.locked?'<div class="locked-pill">⚠ Adeuda pago — no se canceló a tiempo</div>':''}</div>
-      ${!b.locked&&hasPerm('cancel')&&!isPast(b.date)?`<button class="btn-sm bsd" onclick="openCancel('${b.id}')">Cancelar</button>`:''}`;
-    list.appendChild(item);
-  });
+  const upcoming=bks.filter(b=>!isPast(b.date));
+  const past=bks.filter(b=>isPast(b.date));
+  const mkCard=b=>{
+    const d=new Date(b.date+'T12:00:00');
+    const isOngoing=b.date===today&&b.hour===curH;
+    const isPastB=isPast(b.date);
+    const pc=getProfColor(b.userName||'');
+    const item=document.createElement('div');
+    item.className='bk-card'+(isOngoing?' bk-ongoing':'');
+    item.style=isOngoing?`border-color:#6EE7B7;background:#F0FDF4;`:'';
+    let statusBadge='';
+    if(isOngoing) statusBadge='<span class="bk-status-pill bk-ongoing-pill">🔴 En curso</span>';
+    else if(isPastB) statusBadge='<span class="bk-status-pill bk-past-pill">Pasado</span>';
+    else statusBadge='<span class="bk-status-pill bk-future-pill">Próximo</span>';
+    const canCancel=hasPerm('cancel')&&!isPastB&&!isOngoing;
+    item.innerHTML=`
+      <div class="bk-badge" style="background:${pc.lft}">C${b.room}</div>
+      <div class="bk-flex">
+        <div class="bk-main">Consultorio ${b.room} — ${b.hour} hs</div>
+        <div class="bk-date">${DL[d.getDay()]}, ${d.getDate()} de ${MN[d.getMonth()]}</div>
+        <div style="margin-top:5px">${statusBadge}</div>
+      </div>
+      ${canCancel?`<button class="btn-sm bsd" onclick="openCancel('${b.id}')">Cancelar</button>`:''}`;
+    return item;
+  };
+  if(upcoming.length){
+    const hd=document.createElement('div');hd.className='bk-section-hd';hd.textContent='Próximos y en curso';
+    list.appendChild(hd);upcoming.forEach(b=>list.appendChild(mkCard(b)));
+  }
+  if(past.length){
+    const hd=document.createElement('div');hd.className='bk-section-hd';hd.style.marginTop='18px';hd.textContent='Pasados';
+    list.appendChild(hd);past.slice(0,10).forEach(b=>list.appendChild(mkCard(b)));
+    if(past.length>10){const more=document.createElement('div');more.style.cssText='text-align:center;padding:10px;font-size:12px;color:var(--ink4);font-weight:600;';more.textContent=`+${past.length-10} más`;list.appendChild(more);}
+  }
   updBadge();
 }
 
 function updBadge(){
   if(!CU||!CUProfile)return;
-  const n=allBks.filter(b=>b.userId===CU.uid&&!isPast(b.date)&&!b.locked).length;
+  const n=allBks.filter(b=>b.userId===CU.uid&&!isPast(b.date)).length;
   const mb=document.getElementById('myBadge');mb.style.display=n>0?'':'none';mb.textContent=n;
   if(CUProfile.role==='admin'){
     const t=allBks.length;
@@ -988,12 +1053,12 @@ function updBadge(){
 // ── PANEL ──
 function renderPanel(){
   if(CUProfile.role!=='admin')return;
-  const today=todK();const locked=allBks.filter(b=>b.locked).length;
+  const today=todK();
   document.getElementById('panelStats').innerHTML=`
     <div class="sc"><div class="sc-top"><div class="sc-lbl">Profesionales</div><div class="sc-ico ia">👥</div></div><div class="sc-val">${allUsers.length}</div><div class="sc-sub">Registrados</div></div>
     <div class="sc"><div class="sc-top"><div class="sc-lbl">Total turnos</div><div class="sc-ico ie">📋</div></div><div class="sc-val">${allBks.length}</div><div class="sc-sub">Historial</div></div>
     <div class="sc"><div class="sc-top"><div class="sc-lbl">Hoy</div><div class="sc-ico iv">📅</div></div><div class="sc-val">${allBks.filter(b=>b.date===today).length}</div><div class="sc-sub">Del día</div></div>
-    <div class="sc"><div class="sc-top"><div class="sc-lbl">Adeudan pago</div><div class="sc-ico io">⚠️</div></div><div class="sc-val" style="color:var(--amber)">${locked}</div><div class="sc-sub">Bloqueados</div></div>`;
+    <div class="sc"><div class="sc-top"><div class="sc-lbl">Esta semana</div><div class="sc-ico io">📆</div></div><div class="sc-val">${allBks.filter(b=>getWkKeys().includes(b.date)).length}</div><div class="sc-sub">Próximos</div></div>`;
   const uf=document.getElementById('prUserF');uf.innerHTML='<option value="">Todos</option>';
   allUsers.forEach(u=>{const o=document.createElement('option');o.value=u.uid;o.textContent=u.name||u.email;uf.appendChild(o);});
   filterPanel();
@@ -1034,9 +1099,9 @@ function _filterBks(){
   if(!filtered.length){list.innerHTML='<div class="empty" style="padding:28px 20px"><div class="empty-i">📭</div><div class="empty-t">Sin turnos</div></div>';return;}
   filtered.forEach(b=>{
     const d=new Date(b.date+'T12:00:00');const mine=b.userId===CU.uid;
-    const stCls=b.locked?'p-locked':isToday(b.date)?'p-today':isPast(b.date)?'p-past':'p-future';
-    const stLbl=b.locked?'⚠ Adeuda':isToday(b.date)?'Hoy':isPast(b.date)?'Pasado':'Próximo';
-    const row=document.createElement('div');row.className='pr-row'+(mine?' pr-mine':'')+(b.locked?' pr-locked':'');
+    const stCls=isToday(b.date)?'p-today':isPast(b.date)?'p-past':'p-future';
+    const stLbl=isToday(b.date)?'Hoy':isPast(b.date)?'Pasado':'Próximo';
+    const row=document.createElement('div');row.className='pr-row'+(mine?' pr-mine':'');
     row.innerHTML=`<div class="pr-av ${AV[avI(b.userName)]}">${(b.userName||'?').charAt(0).toUpperCase()}</div>
       <div class="pr-info"><div class="pr-name">${sN(b.userName)}</div>
       <div class="pr-detail">C${b.room} · ${b.hour} hs · ${d.getDate()} ${MN[d.getMonth()]} ${d.getFullYear()}</div></div>
@@ -1049,7 +1114,9 @@ window.panelDelBk=async id=>{await deleteDoc(doc(db,'bookings',id));toast('Turno
 
 // ── BLOQUEOS ──
 window.openBlockModal=()=>{
-  document.getElementById('blkDate').value=dk(new Date());
+  const today=dk(new Date());
+  document.getElementById('blkDate').value=today;
+  document.getElementById('blkDateEnd').value=today;
   document.getElementById('blkType').value='day';
   document.getElementById('blkRoom').value='all';
   document.getElementById('blkReason').value='';
@@ -1057,60 +1124,62 @@ window.openBlockModal=()=>{
   HOURS.forEach(h=>{const o=document.createElement('option');o.value=h;o.textContent=h;sel.appendChild(o);});
   toggleBlkType();openOv('blockOv');
 };
+window.blkDateSync=()=>{
+  const start=document.getElementById('blkDate').value;
+  const end=document.getElementById('blkDateEnd').value;
+  if(end<start)document.getElementById('blkDateEnd').value=start;
+};
 window.toggleBlkType=()=>{
   document.getElementById('blkHourGroup').style.display=document.getElementById('blkType').value==='slot'?'block':'none';
 };
 window.confirmBlock=async()=>{
   const type=document.getElementById('blkType').value;
-  const date=document.getElementById('blkDate').value;
+  const dateStart=document.getElementById('blkDate').value;
+  const dateEnd=document.getElementById('blkDateEnd').value||dateStart;
   const hour=document.getElementById('blkHour').value;
   const room=document.getElementById('blkRoom').value;
   const reason=document.getElementById('blkReason').value.trim();
-  if(!date){toast('Seleccioná una fecha','err');return;}
-  const dup=allBlocks.some(b=>b.date===date&&b.type===type&&(type==='day'?b.room===room:b.hour===hour&&b.room===room));
-  if(dup){toast('Ya existe ese bloqueo','warn');return;}
-  await addDoc(collection(db,'blocks'),{type,date,hour:type==='slot'?hour:'',room,reason,createdBy:CUProfile.name||CUProfile.email,createdAt:serverTimestamp()});
-  closeOv('blockOv');toast('Bloqueo creado ✓','ok');
+  if(!dateStart){toast('Seleccioná una fecha','err');return;}
+  if(dateEnd<dateStart){toast('La fecha fin debe ser igual o posterior al inicio','err');return;}
+  // Build list of dates in range
+  const dates=[];
+  const cur=new Date(dateStart+'T12:00:00');
+  const end=new Date(dateEnd+'T12:00:00');
+  while(cur<=end){dates.push(dk(new Date(cur)));cur.setDate(cur.getDate()+1);}
+  let created=0;
+  for(const date of dates){
+    const dup=allBlocks.some(b=>b.date===date&&b.type===type&&(type==='day'?b.room===room:b.hour===hour&&b.room===room));
+    if(dup)continue;
+    await addDoc(collection(db,'blocks'),{type,date,hour:type==='slot'?hour:'',room,reason,createdBy:CUProfile.name||CUProfile.email,createdAt:serverTimestamp()});
+    created++;
+  }
+  closeOv('blockOv');
+  if(created===0)toast('Esos bloqueos ya existen','warn');
+  else toast(`${created} bloqueo${created!==1?'s':''} creado${created!==1?'s':''} ✓`,'ok');
 };
 function renderBlocks(){
   if(CUProfile.role!=='admin')return;
-  const locked=allBks.filter(b=>b.locked).length;
   document.getElementById('blocksStats').innerHTML=`
     <div class="sc"><div class="sc-top"><div class="sc-lbl">Total bloqueos</div><div class="sc-ico io">🔒</div></div><div class="sc-val">${allBlocks.length}</div><div class="sc-sub">Activos</div></div>
     <div class="sc"><div class="sc-top"><div class="sc-lbl">Días</div><div class="sc-ico ia">📅</div></div><div class="sc-val">${allBlocks.filter(b=>b.type==='day').length}</div><div class="sc-sub">Completos</div></div>
-    <div class="sc"><div class="sc-top"><div class="sc-lbl">Horarios</div><div class="sc-ico iv">⏰</div></div><div class="sc-val">${allBlocks.filter(b=>b.type==='slot').length}</div><div class="sc-sub">Específicos</div></div>
-    <div class="sc"><div class="sc-top"><div class="sc-lbl">Adeudan</div><div class="sc-ico ir">⚠️</div></div><div class="sc-val" style="color:var(--amber)">${locked}</div><div class="sc-sub">Sin pagar</div></div>`;
+    <div class="sc"><div class="sc-top"><div class="sc-lbl">Horarios</div><div class="sc-ico iv">⏰</div></div><div class="sc-val">${allBlocks.filter(b=>b.type==='slot').length}</div><div class="sc-sub">Específicos</div></div>`;
   const tf=document.getElementById('blkTypeF').value;const rf=document.getElementById('blkRoomF').value;
-  let filtered=allBlocks.filter(b=>(!tf||b.type===tf)&&(!rf||b.room===rf)).sort((a,b)=>a.date.localeCompare(b.date));
+  let filtered=allBlocks.filter(b=>(!tf||b.type===tf)&&(!rf||b.room===rf||rf==='all')).sort((a,b)=>a.date.localeCompare(b.date));
   document.getElementById('blocksCountLbl').textContent=filtered.length+' bloqueo'+(filtered.length!==1?'s':'');
   const list=document.getElementById('blkList');list.innerHTML='';
   if(!filtered.length){list.innerHTML='<div class="empty" style="padding:28px 20px"><div class="empty-i">🔓</div><div class="empty-t">Sin bloqueos</div></div>';}
   else filtered.forEach(b=>{
     const d=new Date(b.date+'T12:00:00');
     const row=document.createElement('div');row.className='blk-row';
-    const roomLbl=b.room==='all'?'Todos':('C'+b.room);
+    const roomLbl=b.room==='all'?'Todos los consultorios':('C'+b.room);
     row.innerHTML=`<div class="blk-ico">${b.type==='day'?'📅':'⏰'}</div>
       <div class="blk-info"><div class="blk-main">${d.getDate()} ${MN[d.getMonth()]} ${d.getFullYear()} — ${b.type==='day'?'Día completo':b.hour+' hs'}</div>
       <div class="blk-sub">${roomLbl}${b.reason?' · '+b.reason:''}</div></div>
       <button class="blk-del" onclick="deleteBlock('${b.id}')">✕</button>`;
     list.appendChild(row);
   });
-  const lockedBks=allBks.filter(b=>b.locked).sort((a,b)=>a.date.localeCompare(b.date));
-  document.getElementById('lockedCountLbl').textContent=lockedBks.length+' turno'+(lockedBks.length!==1?'s':'');
-  const llist=document.getElementById('lockedList');llist.innerHTML='';
-  if(!lockedBks.length){llist.innerHTML='<div class="empty" style="padding:28px 20px"><div class="empty-i">✅</div><div class="empty-t">Sin turnos que adeudan</div></div>';}
-  else lockedBks.forEach(b=>{
-    const d=new Date(b.date+'T12:00:00');
-    const row=document.createElement('div');row.className='blk-row';
-    row.innerHTML=`<div class="blk-ico" style="background:var(--amber-light);">⚠️</div>
-      <div class="blk-info"><div class="blk-main">${sN(b.userName)} — C${b.room}</div>
-      <div class="blk-sub">${d.getDate()} ${MN[d.getMonth()]} · ${b.hour} hs</div></div>
-      <button class="blk-del" onclick="markPaid('${b.id}')" style="background:var(--emerald-light);color:var(--emerald);">✓</button>`;
-    list.appendChild(row);
-  });
 }
 window.deleteBlock=async id=>{await deleteDoc(doc(db,'blocks',id));toast('Bloqueo eliminado','ok');};
-window.markPaid=async id=>{await updateDoc(doc(db,'bookings',id),{locked:false,paid:true});toast('Marcado como pagado ✓','ok');};
 
 // ── MÉTRICAS ──
 window.setMP=(p,btn)=>{metP=p;document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderMetrics();};
@@ -1155,11 +1224,8 @@ function mkDonut(occ,free){
 // ── BOOK ──
 function openBook(date,hour,fR){
   if(!hasPerm('book')){toast('Sin permiso para reservar','err');return;}
-  const isBlocked=allBlocks.some(bl=>{
-    if(bl.date!==date)return false;
-    return bl.type==='day'||bl.hour===hour;
-  });
-  if(isBlocked){toast('Ese horario está bloqueado','err');return;}
+  // fR ya contiene solo consultorios libres (filtrados en renderGrid), verificar que sigue siendo válido
+  if(!fR||fR.length===0){toast('Ese horario está bloqueado','err');return;}
   pBook={date,hour};const d=new Date(date+'T12:00:00');
   document.getElementById('bookTtl').textContent=`Reservar — ${hour} hs`;
   document.getElementById('bookSub').textContent=`${DL[d.getDay()]}, ${d.getDate()} de ${MN[d.getMonth()]}`;
@@ -1180,10 +1246,9 @@ window.confirmBook=async()=>{
   closeOv('bookOv');pBook=null;toast(`Consultorio ${room} reservado ✓`,'ok');
 };
 
-// ── CANCEL + UNDO ──
+// ── CANCEL ──
 function openCancel(id){
   const bk=allBks.find(b=>b.id===id);if(!bk)return;
-  if(bk.locked){toast('Este turno ya está bloqueado y debe ser abonado','err');return;}
   const mine=bk.userId===CU.uid;
   if(!mine&&!hasPerm('cancelAll')){toast('Sin permiso','err');return;}
   pCancel=id;const d=new Date(bk.date+'T12:00:00');
@@ -1196,32 +1261,9 @@ window.confirmCancel=async()=>{
   const bk=allBks.find(b=>b.id===bkId);
   if(!bk){pCancel=null;closeOv('cancelOv');return;}
   closeOv('cancelOv');pCancel=null;
-  // Soft delete con undo: marcar como pendingDelete en Firestore
-  await updateDoc(doc(db,'bookings',bkId),{pendingDelete:true});
-  toastUndo(bk,bkId);
+  await deleteDoc(doc(db,'bookings',bkId));
+  toast('Turno cancelado ✓','ok');
 };
-function toastUndo(bk,bkId){
-  const w=document.getElementById('toastC');
-  const t=document.createElement('div');
-  t.className='toast warn';t.style.position='relative';t.style.overflow='hidden';
-  t.innerHTML=`<span>✂</span><span>Turno cancelado</span><button class="toast-undo-btn" id="ub_${bkId}">Deshacer</button><div class="toast-prog"></div>`;
-  w.appendChild(t);
-  const timer=setTimeout(async()=>{
-    // Confirmar eliminación real
-    await deleteDoc(doc(db,'bookings',bkId));
-    t.style.transition='all .3s';t.style.opacity='0';t.style.transform='translateX(18px)';
-    setTimeout(()=>{t.remove();delete undoQueue[bkId];},300);
-  },5000);
-  undoQueue[bkId]={timer};
-  t.querySelector(`#ub_${bkId}`).onclick=async()=>{
-    clearTimeout(timer);
-    // Restaurar: quitar flag pendingDelete
-    await updateDoc(doc(db,'bookings',bkId),{pendingDelete:false});
-    t.style.transition='all .3s';t.style.opacity='0';t.style.transform='translateX(18px)';
-    setTimeout(()=>{t.remove();delete undoQueue[bkId];},300);
-    toast('Turno restaurado ✓','ok');
-  };
-}
 
 // ── USER MODALS ──
 window.openAddUser=()=>{
@@ -1295,7 +1337,7 @@ window.exportCSV=()=>{
   if(!allBks.length){toast('Sin datos','inf');return;}
   const rows=[['Profesional','Consultorio','Fecha','Hora','Estado']];
   [...allBks].sort((a,b)=>a.date.localeCompare(b.date)).forEach(b=>{
-    rows.push([b.userName,'C'+b.room,b.date,b.hour,b.locked?'Adeuda':isToday(b.date)?'Hoy':isPast(b.date)?'Pasado':'Próximo']);
+    rows.push([b.userName,'C'+b.room,b.date,b.hour,isToday(b.date)?'Hoy':isPast(b.date)?'Pasado':'Próximo']);
   });
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.map(r=>r.join(',')).join('\n'));
@@ -1315,28 +1357,5 @@ window.toast=(msg,type='inf')=>{
   setTimeout(()=>{t.style.transition='all .3s';t.style.opacity='0';t.style.transform='translateX(18px)';setTimeout(()=>t.remove(),300);},3000);
 };
 </script>
-<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyBcK4NlRVH4PO3W18kC2YVdo0zyVo1WN_M",
-  authDomain: "inhala-turnos.firebaseapp.com",
-  databaseURL: "https://inhala-turnos-default-rtdb.firebaseio.com",
-  projectId: "inhala-turnos",
-  storageBucket: "inhala-turnos.firebasestorage.app",
-  messagingSenderId: "363766281470",
-  appId: "1:363766281470:web:3b5c2c7b843a58980ee1af"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const db = firebase.firestore();
-const auth = firebase.auth();
-
-console.log("Firebase conectado");
-</script>
-
 </body>
 </html>
