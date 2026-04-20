@@ -11,6 +11,16 @@
 <meta property="og:url" content="https://inhala-turnos.netlify.app">
 <meta property="og:type" content="website">
 <title>INHALATURNOS</title>
+
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#0E1420">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="INHALATURNOS">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -1276,29 +1286,9 @@ window.confirmCancel=async()=>{
   const bkId=pCancel;
   const bk=allBks.find(b=>b.id===bkId);
   if(!bk){pCancel=null;closeOv('cancelOv');return;}
-
-  closeOv('cancelOv');
-  pCancel=null;
-
-  const prevBks=[...allBks];
-  allBks=allBks.filter(b=>b.id!==bkId);
-  updBadge();
-  checkReminder();
-  const active=document.querySelector('.view.active');
-  if(active)refreshActiveView(active.id);
-
-  try{
-    await deleteDoc(doc(db,'bookings',bkId));
-    toast('Turno cancelado ✓','ok');
-  }catch(err){
-    allBks=prevBks;
-    updBadge();
-    checkReminder();
-    const active=document.querySelector('.view.active');
-    if(active)refreshActiveView(active.id);
-    toast('No se pudo cancelar el turno','err');
-    console.error(err);
-  }
+  closeOv('cancelOv');pCancel=null;
+  await deleteDoc(doc(db,'bookings',bkId));
+  toast('Turno cancelado ✓','ok');
 };
 
 // ── USER MODALS ──
