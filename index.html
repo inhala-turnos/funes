@@ -998,6 +998,7 @@ function renderRooms(){
       else if(state==='free'){cls='free';lbl='Disponible';}
       else if(state==='ongoing'){cls='ongoing';lbl='🔴 En curso — '+sN(bk.userName);}
       else if(state==='mine'){
+        const row=document.createElement('div');row.className='rsrow';
         const pc=getProfColor(bk.userName);
         const chip2=document.createElement('span');chip2.className='rs-chip';
         chip2.style.cssText=`background:${pc.bg};color:${pc.txt};border:1.5px solid ${pc.bd};cursor:pointer;`;
@@ -1006,6 +1007,7 @@ function renderRooms(){
         row.innerHTML=`<span class="rs-time">${h}</span>`;row.appendChild(chip2);bd.appendChild(row);return;
       }
       else if(state==='taken'){
+        const row=document.createElement('div');row.className='rsrow';
         const pc=getProfColor(bk.userName);
         const chip2=document.createElement('span');chip2.className='rs-chip';
         chip2.style.cssText=`background:${pc.bg};color:${pc.txt};border:1.5px solid ${pc.bd};`;
@@ -1276,6 +1278,7 @@ window.confirmBook=async()=>{
 function openCancel(id){
   const bk=allBks.find(b=>b.id===id);if(!bk)return;
   const mine=bk.userId===CU.uid;
+  if(mine&&!hasPerm('cancel')){toast('Sin permiso para cancelar','err');return;}
   if(!mine&&!hasPerm('cancelAll')){toast('Sin permiso','err');return;}
   pCancel=id;const d=new Date(bk.date+'T12:00:00');
   document.getElementById('cancelSub').textContent=`Consultorio ${bk.room} — ${bk.hour} hs — ${DL[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}`;
