@@ -713,6 +713,13 @@ let allBks=[], allUsers=[], allBlocks=[];
 let unsubBks=null, unsubUsers=null, unsubBlocks=null;
 
 // ── HELPERS ──
+const isBookingCancelled=b=>!!(b&&(
+  b.status==='cancelled'||
+  b.cancelled===true||
+  b.deleted===true
+));
+const activeBks=()=>allBks.filter(b=>!isBookingCancelled(b));
+const findBookingById=(id,{includeCancelled=false}={})=>(includeCancelled?allBks:activeBks()).find(b=>b.id===id);
 const hasPerm=p=>{if(!CUProfile)return false;if(CUProfile.role==='admin')return true;return Array.isArray(CUProfile.perms)&&CUProfile.perms.includes(p);};
 const avI=n=>{let h=0;for(const c of(n||''))h=(h*31+c.charCodeAt(0))&0xffff;return h%8;};
 const dk=d=>d.toISOString().split('T')[0];
@@ -804,7 +811,11 @@ async function startApp(){
   // ── REALTIME LISTENERS ──
   // Bookings
   unsubBks=onSnapshot(collection(db,'bookings'),snap=>{
-    allBks=snap.docs.map(d=>({id:d.id,...d.data()}));
+    allBks=snap.docs.map(d=>{
+      const data={id:d.id,...d.data()};
+      if(!data.status)data.status='active';
+      return data;
+    });
     lockExpiredBookings();
     checkReminder();
     updBadge();
@@ -859,7 +870,7 @@ function checkReminder(){
   const now=new Date();
   const REMIND_MINUTES=60;
   let soonBk=null;
-  allBks.filter(b=>b.userId===CU.uid).forEach(b=>{
+  activeBks().filter(b=>b.userId===CU.uid).forEach(b=>{
     const tDate=new Date(b.date+'T'+b.hour+':00');
     const diff=tDate-now;
     if(diff>0&&diff<REMIND_MINUTES*60*1000){
@@ -889,7 +900,7 @@ function slotState(dkey,h,r){
     return bl.hour===h&&(bl.room==='all'||String(bl.room)===String(r));
   });
   if(isBlocked)return{state:'blkd',bk:null};
-  const bk=allBks.find(b=>b.date===dkey&&b.hour===h&&b.room===r);
+  const bk=activeBks().find(b=>b.date===dkey&&b.hour===h&&b.room===r);
   if(!bk)return{state:'free',bk:null};
   // En curso: es hoy y la hora coincide con la hora actual
   if(dkey===todK()&&h===curHourKey())return{state:'ongoing',bk};
@@ -998,7 +1009,6 @@ function renderRooms(){
       else if(state==='free'){cls='free';lbl='Disponible';}
       else if(state==='ongoing'){cls='ongoing';lbl='🔴 En curso — '+sN(bk.userName);}
       else if(state==='mine'){
-        const row=document.createElement('div');row.className='rsrow';
         const pc=getProfColor(bk.userName);
         const chip2=document.createElement('span');chip2.className='rs-chip';
         chip2.style.cssText=`background:${pc.bg};color:${pc.txt};border:1.5px solid ${pc.bd};cursor:pointer;`;
@@ -1007,7 +1017,6 @@ function renderRooms(){
         row.innerHTML=`<span class="rs-time">${h}</span>`;row.appendChild(chip2);bd.appendChild(row);return;
       }
       else if(state==='taken'){
-        const row=document.createElement('div');row.className='rsrow';
         const pc=getProfColor(bk.userName);
         const chip2=document.createElement('span');chip2.className='rs-chip';
         chip2.style.cssText=`background:${pc.bg};color:${pc.txt};border:1.5px solid ${pc.bd};`;
@@ -1026,7 +1035,7 @@ function renderRooms(){
 // ── MY ──
 function renderMy(){
   const today=todK();const curH=curHourKey();
-  const bks=allBks.filter(b=>b.userId===CU.uid).sort((a,b)=>a.date.localeCompare(b.date)||a.hour.localeCompare(b.hour));
+  const bks=activeBks().filter(b=>b.userId===CU.uid).sort((a,b)=>a.date.localeCompare(b.date)||a.hour.localeCompare(b.hour));
   const list=document.getElementById('myList');list.innerHTML='';
   if(!bks.length){list.innerHTML='<div class="empty"><div class="empty-i">📭</div><div class="empty-t">Sin turnos reservados</div></div>';return;}
   const upcoming=bks.filter(b=>!isPast(b.date));
@@ -1068,10 +1077,10 @@ function renderMy(){
 
 function updBadge(){
   if(!CU||!CUProfile)return;
-  const n=allBks.filter(b=>b.userId===CU.uid&&!isPast(b.date)).length;
+  const n=activeBks().filter(b=>b.userId===CU.uid&&!isPast(b.date)).length;
   const mb=document.getElementById('myBadge');mb.style.display=n>0?'':'none';mb.textContent=n;
   if(CUProfile.role==='admin'){
-    const t=allBks.length;
+    const t=activeBks().length;
     const pb=document.getElementById('panelBadge');pb.style.display=t>0?'':'none';pb.textContent=t;
     const bl=allBlocks.length;
     const bb=document.getElementById('blocksBadge');bb.style.display=bl>0?'':'none';bb.textContent=bl;
@@ -1084,9 +1093,9 @@ function renderPanel(){
   const today=todK();
   document.getElementById('panelStats').innerHTML=`
     <div class="sc"><div class="sc-top"><div class="sc-lbl">Profesionales</div><div class="sc-ico ia">👥</div></div><div class="sc-val">${allUsers.length}</div><div class="sc-sub">Registrados</div></div>
-    <div class="sc"><div class="sc-top"><div class="sc-lbl">Total turnos</div><div class="sc-ico ie">📋</div></div><div class="sc-val">${allBks.length}</div><div class="sc-sub">Historial</div></div>
-    <div class="sc"><div class="sc-top"><div class="sc-lbl">Hoy</div><div class="sc-ico iv">📅</div></div><div class="sc-val">${allBks.filter(b=>b.date===today).length}</div><div class="sc-sub">Del día</div></div>
-    <div class="sc"><div class="sc-top"><div class="sc-lbl">Esta semana</div><div class="sc-ico io">📆</div></div><div class="sc-val">${allBks.filter(b=>getWkKeys().includes(b.date)).length}</div><div class="sc-sub">Próximos</div></div>`;
+    <div class="sc"><div class="sc-top"><div class="sc-lbl">Turnos activos</div><div class="sc-ico ie">📋</div></div><div class="sc-val">${activeBks().length}</div><div class="sc-sub">Vigentes</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-lbl">Hoy</div><div class="sc-ico iv">📅</div></div><div class="sc-val">${activeBks().filter(b=>b.date===today).length}</div><div class="sc-sub">Del día</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-lbl">Esta semana</div><div class="sc-ico io">📆</div></div><div class="sc-val">${activeBks().filter(b=>getWkKeys().includes(b.date)).length}</div><div class="sc-sub">Próximos</div></div>`;
   const uf=document.getElementById('prUserF');uf.innerHTML='<option value="">Todos</option>';
   allUsers.forEach(u=>{const o=document.createElement('option');o.value=u.uid;o.textContent=u.name||u.email;uf.appendChild(o);});
   filterPanel();
@@ -1100,7 +1109,7 @@ function _filterPros(){
   const list=document.getElementById('ppList');list.innerHTML='';
   if(!filtered.length){list.innerHTML='<div class="empty" style="padding:28px 20px"><div class="empty-i">👤</div><div class="empty-t">Sin resultados</div></div>';return;}
   filtered.forEach(u=>{
-    const myBks=allBks.filter(b=>b.userId===u.uid);const future=myBks.filter(b=>!isPast(b.date)).length;
+    const myBks=activeBks().filter(b=>b.userId===u.uid);const future=myBks.filter(b=>!isPast(b.date)).length;
     const row=document.createElement('div');row.className='pp-row';
     row.innerHTML=`<div class="pp-av ${AV[avI(u.name||u.email)]}">${(u.name||u.email||'?').charAt(0).toUpperCase()}</div>
       <div class="pp-info"><div class="pp-name">${u.name||u.email}</div>
@@ -1115,7 +1124,7 @@ function _filterPros(){
 function _filterBks(){
   const rF=document.getElementById('prRoomF').value;const pF=document.getElementById('prPeriodF').value;const uF=document.getElementById('prUserF').value;
   const wk=getWkKeys();const mn=getMonthPfx();
-  let filtered=allBks.filter(b=>{
+  let filtered=activeBks().filter(b=>{
     if(rF&&String(b.room)!==rF)return false;if(uF&&b.userId!==uF)return false;
     if(pF==='today'&&b.date!==todK())return false;if(pF==='week'&&!wk.includes(b.date))return false;
     if(pF==='month'&&!b.date.startsWith(mn))return false;if(pF==='future'&&!isFuture(b.date))return false;
@@ -1138,7 +1147,7 @@ function _filterBks(){
     list.appendChild(row);
   });
 }
-window.panelDelBk=async id=>{await deleteDoc(doc(db,'bookings',id));toast('Turno eliminado','ok');};
+window.panelDelBk=async id=>{try{await updateDoc(doc(db,'bookings',id),{status:'cancelled',cancelled:true,cancelledAt:serverTimestamp(),cancelledBy:CU?.uid||null,cancelledByName:CUProfile?.name||CU?.email||'sistema'});toast('Turno eliminado','ok');}catch(e){try{await deleteDoc(doc(db,'bookings',id));toast('Turno eliminado','ok');}catch(err){toast('No se pudo eliminar el turno','err');console.error(err);}}};
 
 // ── BLOQUEOS ──
 window.openBlockModal=()=>{
@@ -1211,18 +1220,19 @@ window.deleteBlock=async id=>{await deleteDoc(doc(db,'blocks',id));toast('Bloque
 
 // ── MÉTRICAS ──
 window.setMP=(p,btn)=>{metP=p;document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderMetrics();};
-function getBP(){const wk=getWkKeys();const mn=getMonthPfx();if(metP==='week')return allBks.filter(b=>wk.includes(b.date));if(metP==='month')return allBks.filter(b=>b.date.startsWith(mn));return allBks;}
+function getBP(){const wk=getWkKeys();const mn=getMonthPfx();if(metP==='week')return activeBks().filter(b=>wk.includes(b.date));if(metP==='month')return activeBks().filter(b=>b.date.startsWith(mn));return activeBks();}
 function renderMetrics(){
   if(CUProfile.role!=='admin')return;
   const pbks=getBP();const today=todK();
-  const todBks=allBks.filter(b=>b.date===today);const totalSlots=ROOMS.length*HOURS.length;
+  const liveBks=activeBks();
+  const todBks=liveBks.filter(b=>b.date===today);const totalSlots=ROOMS.length*HOURS.length;
   const occPct=totalSlots>0?Math.round(todBks.length/totalSlots*100):0;
-  const wkBks=allBks.filter(b=>getWkKeys().includes(b.date));const mnBks=allBks.filter(b=>b.date.startsWith(getMonthPfx()));
+  const wkBks=liveBks.filter(b=>getWkKeys().includes(b.date));const mnBks=liveBks.filter(b=>b.date.startsWith(getMonthPfx()));
   document.getElementById('metStats').innerHTML=`
     <div class="sc"><div class="sc-top"><div class="sc-lbl">Hoy</div><div class="sc-ico ia">📅</div></div><div class="sc-val">${todBks.length}</div><div class="sc-sub">${occPct}% ocupación</div></div>
     <div class="sc"><div class="sc-top"><div class="sc-lbl">Esta semana</div><div class="sc-ico ie">📆</div></div><div class="sc-val">${wkBks.length}</div><div class="sc-sub">Turnos</div></div>
     <div class="sc"><div class="sc-top"><div class="sc-lbl">Este mes</div><div class="sc-ico iv">📈</div></div><div class="sc-val">${mnBks.length}</div><div class="sc-sub">Turnos</div></div>
-    <div class="sc"><div class="sc-top"><div class="sc-lbl">Histórico</div><div class="sc-ico io">🗂</div></div><div class="sc-val">${allBks.length}</div><div class="sc-sub">Total</div></div>`;
+    <div class="sc"><div class="sc-top"><div class="sc-lbl">Activos</div><div class="sc-ico io">🗂</div></div><div class="sc-val">${liveBks.length}</div><div class="sc-sub">Total</div></div>`;
   const roomOcc=ROOMS.map((r,i)=>{const n=pbks.filter(b=>b.room===r).length;const maxN=Math.max(...ROOMS.map(rx=>pbks.filter(b=>b.room===rx).length),1);return{r,n,pct:Math.min(100,Math.round(n/maxN*100)),color:RC_COLORS[i]};});
   const proMap={};pbks.forEach(b=>{if(!proMap[b.userId])proMap[b.userId]={name:b.userName,n:0};proMap[b.userId].n++;});
   const topPros=Object.values(proMap).sort((a,b)=>b.n-a.n).slice(0,5);
@@ -1264,7 +1274,7 @@ function openBook(date,hour,fR){
 window.confirmBook=async()=>{
   if(!pBook)return;
   const room=parseInt(document.getElementById('bookRoomSel').value);
-  const dup=allBks.find(b=>b.date===pBook.date&&b.hour===pBook.hour&&b.room===room);
+  const dup=activeBks().find(b=>b.date===pBook.date&&b.hour===pBook.hour&&b.room===room);
   if(dup){toast('Ese horario ya fue reservado','err');closeOv('bookOv');return;}
   await addDoc(collection(db,'bookings'),{
     date:pBook.date,hour:pBook.hour,room,
@@ -1276,10 +1286,9 @@ window.confirmBook=async()=>{
 
 // ── CANCEL ──
 function openCancel(id){
-  const bk=allBks.find(b=>b.id===id);if(!bk)return;
+  const bk=findBookingById(id);if(!bk)return;
   const mine=bk.userId===CU.uid;
-  if(mine&&!hasPerm('cancel')){toast('Sin permiso para cancelar','err');return;}
-  if(!mine&&!hasPerm('cancelAll')){toast('Sin permiso','err');return;}
+  if((mine&&!hasPerm('cancel'))||(!mine&&!hasPerm('cancelAll'))){toast('Sin permiso','err');return;}
   pCancel=id;const d=new Date(bk.date+'T12:00:00');
   document.getElementById('cancelSub').textContent=`Consultorio ${bk.room} — ${bk.hour} hs — ${DL[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}`;
   openOv('cancelOv');
@@ -1287,11 +1296,28 @@ function openCancel(id){
 window.confirmCancel=async()=>{
   if(!pCancel)return;
   const bkId=pCancel;
-  const bk=allBks.find(b=>b.id===bkId);
+  const bk=findBookingById(bkId);
   if(!bk){pCancel=null;closeOv('cancelOv');return;}
   closeOv('cancelOv');pCancel=null;
-  await deleteDoc(doc(db,'bookings',bkId));
-  toast('Turno cancelado ✓','ok');
+  try{
+    await updateDoc(doc(db,'bookings',bkId),{
+      status:'cancelled',
+      cancelled:true,
+      cancelledAt:serverTimestamp(),
+      cancelledBy:CU.uid,
+      cancelledByName:CUProfile.name||CU.email
+    });
+    toast('Turno cancelado ✓','ok');
+  }catch(e){
+    console.error('Error al cancelar con updateDoc',e);
+    try{
+      await deleteDoc(doc(db,'bookings',bkId));
+      toast('Turno cancelado ✓','ok');
+    }catch(err){
+      console.error('Error al cancelar con deleteDoc',err);
+      toast('No se pudo cancelar el turno. Revisá permisos de Firestore.','err');
+    }
+  }
 };
 
 // ── USER MODALS ──
@@ -1354,7 +1380,7 @@ window.openDelUser=(uid,name)=>{
 window.confirmDelUser=async()=>{
   const uid=document.getElementById('dUid').value;
   // Eliminar reservas del usuario
-  const userBks=allBks.filter(b=>b.userId===uid);
+  const userBks=activeBks().filter(b=>b.userId===uid);
   for(const b of userBks)await deleteDoc(doc(db,'bookings',b.id));
   // Eliminar perfil
   await deleteDoc(doc(db,'users',uid));
@@ -1363,9 +1389,9 @@ window.confirmDelUser=async()=>{
 
 // ── EXPORT ──
 window.exportCSV=()=>{
-  if(!allBks.length){toast('Sin datos','inf');return;}
+  if(!activeBks().length){toast('Sin datos','inf');return;}
   const rows=[['Profesional','Consultorio','Fecha','Hora','Estado']];
-  [...allBks].sort((a,b)=>a.date.localeCompare(b.date)).forEach(b=>{
+  [...activeBks()].sort((a,b)=>a.date.localeCompare(b.date)).forEach(b=>{
     rows.push([b.userName,'C'+b.room,b.date,b.hour,isToday(b.date)?'Hoy':isPast(b.date)?'Pasado':'Próximo']);
   });
   const a=document.createElement('a');
