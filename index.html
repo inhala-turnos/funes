@@ -240,6 +240,11 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 .blk-date-range{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .sl-st{font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:1px;}
 .sl.free .sl-st{color:#065F46;}.sl.blkd .sl-st,.sl.past .sl-st{color:var(--ink4);}
+.sl-head{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:2px;}
+.sl-room-badge{display:inline-flex;align-items:center;justify-content:center;min-width:25px;height:17px;padding:0 6px;border-radius:5px;background:var(--prof-color,#065F46);color:#fff;font-size:9px;font-weight:900;line-height:1;letter-spacing:.2px;box-shadow:0 1px 2px rgba(14,20,32,.16);}
+.sl-status-label{font-size:9px;font-weight:800;letter-spacing:.45px;text-transform:uppercase;line-height:1.2;}
+.sl.ongoing .sl-room-badge{background:#047857;}
+.sl.prof.past-prof .sl-room-badge{background:#7F8798!important;color:#fff!important;}
 .sl-nm{font-size:11px;font-weight:700;color:var(--ink);white-space:normal;overflow:visible;text-overflow:unset;word-break:break-word;}
 .fchip{min-height:44px;border-radius:9px;background:var(--emerald-light);border:1.5px dashed #6EE7B7;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:5px;transition:all var(--t);}
 .fchip:hover{background:#C7F5E5;transform:scale(1.025);}
@@ -262,7 +267,7 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 .rs-chip.free{background:var(--emerald-light);color:#065F46;cursor:pointer;}.rs-chip.free:hover{background:#C7F5E5;}
 .rs-chip.mine{background:var(--accent-light);color:var(--accent3);cursor:pointer;}
 .rs-chip.taken{background:#FEF0F7;color:#831843;}
-.rs-chip.ongoing{background:#ECFDF5;color:#065F46;font-weight:800;}
+.rs-chip.ongoing{background:#ECFDF5;color:#065F46;font-weight:800;border:1.5px solid #10B981;}
 .rs-chip.blkd{background:#F1F5F9;color:var(--ink4);}
 .bk-list{display:flex;flex-direction:column;gap:8px;}
 .bk-section-hd{font-size:10px;font-weight:800;color:var(--ink4);text-transform:uppercase;letter-spacing:.8px;padding:4px 2px 2px;}
@@ -989,7 +994,7 @@ function renderGrid(){
           const el=document.createElement('div');
           if(state==='ongoing'){
             el.className='sl ongoing';el.style='width:100%;';
-            el.innerHTML=`<div class="sl-st">🔴 En curso</div><div class="sl-nm">${esc(sN(bk.userName))}</div>`;
+            el.innerHTML=`<div class="sl-head"><span class="sl-room-badge">C${r}</span><span class="sl-status-label">🔴 En curso</span></div><div class="sl-nm">${esc(sN(bk.userName))}</div>`;
           } else {
             const pc=getProfColor(bk.userName);
             const isMe=state==='mine';
@@ -997,7 +1002,7 @@ function renderGrid(){
             el.className='sl prof'+(isPastBooked?' past-prof':(((isMe&&hasPerm('cancel'))||(!isMe&&hasPerm('cancelAll')))?' clickable':''));
             el.style=`width:100%;background:${pc.bg};border:1.5px solid ${pc.bd};`;
             el.style.setProperty('--prof-color',pc.lft);
-            el.innerHTML=`<div class="sl-st" style="color:${pc.txt}">${isMe?'✓ Mío':'C'+r}</div><div class="sl-nm" style="color:${pc.txt}">${esc(sN(bk.userName))}</div>`;
+            el.innerHTML=`<div class="sl-head"><span class="sl-room-badge" style="background:${isPastBooked?'#7F8798':pc.lft}">C${r}</span><span class="sl-status-label" style="color:${pc.txt}">${isMe?'✓ Mío':'Ocupado'}</span></div><div class="sl-nm" style="color:${pc.txt}">${esc(sN(bk.userName))}</div>`;
             if(!isPastBooked&&isMe&&hasPerm('cancel')){el.onclick=()=>openCancel(bk.id);}
             else if(!isPastBooked&&!isMe&&hasPerm('cancelAll')){el.onclick=()=>openCancel(bk.id);}
           }
@@ -1016,14 +1021,14 @@ function renderGrid(){
         const el=document.createElement('div');
         if(state==='blkd'||state==='past'){el.className=state==='past'?'sl past':'sl blkd';el.innerHTML=`<div class="sl-st">${state==='past'?'No disponible':'Bloqueado'}</div>`;}
         else if(state==='free'){el.className='sl free';el.innerHTML='<div class="sl-st">Libre</div>';if(hasPerm('book'))el.onclick=()=>openBook(dkey,h,[selR]);else el.style.cursor='default';}
-        else if(state==='ongoing'){el.className='sl ongoing';el.innerHTML=`<div class="sl-st">🔴 En curso</div><div class="sl-nm">${esc(sN(bk.userName))}</div>`;}
+        else if(state==='ongoing'){el.className='sl ongoing';el.innerHTML=`<div class="sl-head"><span class="sl-room-badge">C${selR}</span><span class="sl-status-label">🔴 En curso</span></div><div class="sl-nm">${esc(sN(bk.userName))}</div>`;}
         else{
           const pc=getProfColor(bk.userName);const isMe=state==='mine';
           const isPastBooked=isPastSlot(dkey,h);
           el.className='sl prof'+(isPastBooked?' past-prof':(((isMe&&hasPerm('cancel'))||(!isMe&&hasPerm('cancelAll')))?' clickable':''));
           el.style=`background:${pc.bg};border:1.5px solid ${pc.bd};`;
           el.style.setProperty('--prof-color',pc.lft);
-          el.innerHTML=`<div class="sl-st" style="color:${pc.txt}">${isMe?'✓ Mi turno':'Ocupado'}</div><div class="sl-nm" style="color:${pc.txt}">${esc(sN(bk.userName))}</div>`;
+          el.innerHTML=`<div class="sl-head"><span class="sl-room-badge" style="background:${isPastBooked?'#7F8798':pc.lft}">C${selR}</span><span class="sl-status-label" style="color:${pc.txt}">${isMe?'✓ Mi turno':'Ocupado'}</span></div><div class="sl-nm" style="color:${pc.txt}">${esc(sN(bk.userName))}</div>`;
           if(!isPastBooked&&isMe&&hasPerm('cancel')){el.onclick=()=>openCancel(bk.id);}
           else if(!isPastBooked&&!isMe&&hasPerm('cancelAll')){el.onclick=()=>openCancel(bk.id);}
         }
@@ -1055,13 +1060,13 @@ function renderRooms(){
       if(state==='blkd'){cls='blkd';lbl='🔒 Bloqueado';}
       else if(state==='free'){cls='free';lbl='Disponible';}
       else if(state==='past'){cls='blkd';lbl='No disponible';}
-      else if(state==='ongoing'){cls='ongoing';lbl='🔴 En curso — '+sN(bk.userName);}
+      else if(state==='ongoing'){cls='ongoing';lbl='C'+r+' · 🔴 En curso — '+sN(bk.userName);}
       else if(state==='mine'){
         const pc=getProfColor(bk.userName);
         const chip2=document.createElement('span');chip2.className='rs-chip';
         const pastBooked=isPastSlot(dv,h);
         chip2.style.cssText=pastBooked?`background:#EEF1F6;color:#7F8798;border:1.5px solid #D7DDE8;filter:saturate(.35);`:`background:${pc.bg};color:${pc.txt};border:1.5px solid ${pc.bd};cursor:pointer;`;
-        chip2.textContent='✓ Mi turno';
+        chip2.textContent='C'+r+' · ✓ Mi turno';
         if(!pastBooked&&hasPerm('cancel'))chip2.onclick=()=>openCancel(bk.id);
         row.innerHTML=`<span class="rs-time">${h}</span>`;row.appendChild(chip2);bd.appendChild(row);return;
       }
@@ -1070,7 +1075,7 @@ function renderRooms(){
         const chip2=document.createElement('span');chip2.className='rs-chip';
         const pastBooked=isPastSlot(dv,h);
         chip2.style.cssText=pastBooked?`background:#EEF1F6;color:#7F8798;border:1.5px solid #D7DDE8;filter:saturate(.35);`:`background:${pc.bg};color:${pc.txt};border:1.5px solid ${pc.bd};`;
-        chip2.textContent=sN(bk.userName);
+        chip2.textContent='C'+r+' · '+sN(bk.userName);
         if(!pastBooked&&hasPerm('cancelAll'))chip2.onclick=()=>openCancel(bk.id);
         row.innerHTML=`<span class="rs-time">${h}</span>`;row.appendChild(chip2);bd.appendChild(row);return;
       }
@@ -1488,9 +1493,6 @@ window.setMNI=function(btn){
 </script>
 </body>
 </html>
-
-
-
 
 
 
