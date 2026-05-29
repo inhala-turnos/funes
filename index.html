@@ -276,7 +276,8 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 .bk-card.bk-future-card{border-color:#C7D2FE;background:#FCFDFF;}
 .bk-card.bk-past-card{background:#F5F7FA;border-color:#DDE3EE;box-shadow:none;filter:saturate(.45);}
 .bk-card.bk-past-card:hover{transform:none;box-shadow:var(--s1);}
-.bk-card.bk-past-card .bk-main,.bk-card.bk-past-card .bk-date{color:#8A93A5;}
+.bk-card.bk-past-card .bk-main{color:#8A93A5;}
+.bk-card.bk-past-card .bk-date{color:#6B7280;}
 .bk-status-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;padding:3px 8px;border-radius:var(--rpill);}
 .bk-ongoing-pill{background:#ECFDF5;color:#065F46;}
 .bk-past-pill{background:#E2E8F0;color:#7B8496;}
@@ -284,7 +285,9 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 
 .bk-badge{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
 .bk-main{font-size:14px;font-weight:700;color:var(--ink);}
-.bk-date{font-size:12px;color:var(--ink4);margin-top:2px;font-weight:500;}
+.bk-date{font-size:12px;color:#111827;margin-top:3px;font-weight:800;}
+.bk-patient{display:inline-flex;margin-top:7px;padding:4px 10px;border-radius:var(--rpill);background:#EEF4FB;color:#475569;font-size:11px;font-weight:800;gap:8px;}
+.bk-patient span{color:#111827;}
 .bk-flex{flex:1;}
 .panel-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;}
 @media(max-width:1100px){.panel-layout{grid-template-columns:1fr;}}
@@ -375,7 +378,7 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 /* ── MODAL ── */
 .overlay{position:fixed;inset:0;background:rgba(8,12,24,.45);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:400;opacity:0;pointer-events:none;transition:opacity .2s;padding:20px;}
 .overlay.open{opacity:1;pointer-events:all;}
-.modal{background:var(--white);border-radius:var(--r24);padding:30px 28px 26px;width:100%;max-width:420px;box-shadow:var(--s5);transform:translateY(18px) scale(.96);transition:transform .28s cubic-bezier(.22,1,.36,1);}
+.modal{background:var(--white);border-radius:var(--r24);padding:30px 28px 26px;width:100%;max-width:420px;max-height:calc(100vh - 40px);overflow-y:auto;box-shadow:var(--s5);transform:translateY(18px) scale(.96);transition:transform .28s cubic-bezier(.22,1,.36,1);}
 .overlay.open .modal{transform:translateY(0) scale(1);}
 .modal-lg{max-width:500px;}
 .modal-ico{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;}
@@ -398,6 +401,12 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 .perm-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
 .perm-tag{padding:5px 11px;border-radius:var(--rpill);font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--white);color:var(--ink3);transition:all var(--t);user-select:none;}
 .perm-tag.on{background:var(--accent-light);border-color:var(--accent);color:var(--accent);}
+.block-pro-list{display:none;border:1.5px solid var(--border);background:#FAFBFD;border-radius:var(--r12);padding:6px;max-height:180px;overflow-y:auto;}
+.block-pro-list.show{display:flex;flex-direction:column;gap:4px;}
+.block-pro-option{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;font-size:13px;font-weight:700;color:var(--ink2);cursor:pointer;user-select:none;}
+.block-pro-option:hover{background:var(--white);}
+.block-pro-option input{width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;}
+.block-pro-empty{padding:10px;color:var(--ink4);font-size:12px;font-weight:700;}
 
 /* ── TOAST ── */
 .toast-c{position:fixed;bottom:22px;right:22px;z-index:900;display:flex;flex-direction:column;gap:7px;pointer-events:none;}
@@ -434,6 +443,7 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 .mn-logout .mn-ico{color:#C0A0A0;}
 .mn-logout .mn-ico svg{fill:#C0A0A0;}
 @media(max-width:768px){.sidebar{display:none;}.main-area{padding:16px 14px 80px;}.mobile-nav{display:flex;}.toast-c{bottom:80px;right:16px;left:16px;}.toast{max-width:100%;}}
+@media(max-width:560px){.mf-2col,.blk-date-range{grid-template-columns:1fr;}.modal{padding:26px 22px 22px;}.block-pro-option{padding:12px 10px;}}
 </style>
 </head>
 <body>
@@ -641,6 +651,7 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 <div class="overlay" id="bookOv">
   <div class="modal"><div class="modal-ico mie">📅</div><div class="modal-ttl" id="bookTtl">Reservar horario</div><div class="modal-sub" id="bookSub"></div>
   <div class="mf-group"><label class="mf-label">Consultorio</label><select class="mf-select" id="bookRoomSel"></select></div>
+  <div class="mf-group"><label class="mf-label">Paciente</label><input class="mf-input" id="bookPatientName" placeholder="Nombre del paciente"></div>
   <div class="book-notice">💳 Abonar por transferencia al alias <strong>inhalaconsultorios</strong></div>
   <div class="modal-acts"><button class="btn-mc" onclick="closeOv('bookOv')">Cancelar</button><button class="btn-mok bm-green" onclick="confirmBook()">Confirmar</button></div></div>
 </div>
@@ -659,6 +670,8 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
     <div class="mf-group" id="blkHourGroup"><label class="mf-label">Hora</label><select class="mf-select" id="blkHour"></select></div>
     <div class="mf-group"><label class="mf-label">Consultorio</label><select class="mf-select" id="blkRoom"><option value="all">Todos</option><option value="1">C1</option><option value="2">C2</option><option value="3">C3</option><option value="4">C4</option><option value="5">C5</option><option value="6">C6</option></select></div>
   </div>
+  <div class="mf-group"><label class="mf-label">Aplicar bloqueo a</label><select class="mf-select" id="blkApplyTo" onchange="toggleBlockProfessionals()"><option value="todos_profesionales">Todos los profesionales</option><option value="profesionales_especificos">Profesionales específicos</option></select></div>
+  <div class="mf-group" id="blkProsGroup"><label class="mf-label">Profesionales</label><div class="block-pro-list" id="blkProsList"></div></div>
   <div class="mf-group"><label class="mf-label">Motivo (opcional)</label><input class="mf-input" id="blkReason" placeholder="Feriado, mantenimiento…"></div>
   <div class="modal-acts"><button class="btn-mc" onclick="closeOv('blockOv')">Cancelar</button><button class="btn-mok bm-amber" onclick="confirmBlock()">Bloquear</button></div></div>
 </div>
@@ -939,12 +952,51 @@ window.cancelFromReminder=()=>{if(reminderBkId){openCancel(reminderBkId);documen
 
 // ── SLOT STATE ──
 function curHourKey(){const n=new Date();return String(n.getHours()).padStart(2,'0')+':00';}
+function normBlock(bl){
+  const rawRoom=bl.consultorioId??bl.room??'all';
+  const room=rawRoom==='todos'?'all':String(rawRoom).replace('consultorio_','');
+  const type=bl.tipo==='dia_completo'?'day':bl.tipo==='horario_especifico'?'slot':(bl.type||'day');
+  return{
+    ...bl,
+    type,
+    room,
+    date:bl.desde||bl.date,
+    dateEnd:bl.hasta||bl.desde||bl.date,
+    hour:bl.hour||bl.hora||'',
+    aplicaA:bl.aplicaA||'todos_profesionales',
+    profesionalesIds:Array.isArray(bl.profesionalesIds)?bl.profesionalesIds:[]
+  };
+}
+function blockMatchesTurn(bl,date,hour,room,userId){
+  const b=normBlock(bl);
+  if(!b.date||date<b.date||date>b.dateEnd)return false;
+  const roomOk=b.room==='all'||String(b.room)===String(room);
+  const proOk=b.aplicaA==='todos_profesionales'||b.profesionalesIds.includes(userId);
+  const timeOk=b.type==='day'||b.hour===hour;
+  return roomOk&&proOk&&timeOk;
+}
+function blockScopeIds(bl){
+  const b=normBlock(bl);
+  return b.aplicaA==='profesionales_especificos'?b.profesionalesIds:[];
+}
+function getBlockProfessionals(){
+  const byId=new Map();
+  allUsers.forEach(u=>{if(u.uid)byId.set(u.uid,{uid:u.uid,name:u.name||u.email||'Profesional'});});
+  activeBks().forEach(b=>{if(b.userId&&!byId.has(b.userId))byId.set(b.userId,{uid:b.userId,name:b.userName||'Profesional'});});
+  return [...byId.values()].sort((a,b)=>a.name.localeCompare(b.name));
+}
+function renderBlockProfessionals(){
+  const list=document.getElementById('blkProsList');if(!list)return;
+  const pros=getBlockProfessionals();
+  if(!pros.length){list.innerHTML='<div class="block-pro-empty">No hay profesionales cargados todavía.</div>';return;}
+  list.innerHTML=pros.map(p=>`<label class="block-pro-option"><input type="checkbox" value="${esc(p.uid)}"><span>${esc(p.name)}</span></label>`).join('');
+}
+window.toggleBlockProfessionals=()=>{
+  const specific=document.getElementById('blkApplyTo').value==='profesionales_especificos';
+  document.getElementById('blkProsList').classList.toggle('show',specific);
+};
 function slotState(dkey,h,r){
-  const isBlocked=allBlocks.some(bl=>{
-    if(bl.date!==dkey)return false;
-    if(bl.type==='day')return bl.room==='all'||String(bl.room)===String(r);
-    return bl.hour===h&&(bl.room==='all'||String(bl.room)===String(r));
-  });
+  const isBlocked=allBlocks.some(bl=>blockMatchesTurn(bl,dkey,h,r,CU.uid));
   if(isBlocked)return{state:'blkd',bk:null};
   const bk=activeBks().find(b=>b.date===dkey&&b.hour===h&&b.room===r);
   if(!bk)return isPastSlot(dkey,h)?{state:'past',bk:null}:{state:'free',bk:null};
@@ -1112,9 +1164,9 @@ function renderMy(){
       <div class="bk-flex">
         <div class="bk-main">Consultorio ${b.room} — ${b.hour} hs</div>
         <div class="bk-date">${DL[d.getDay()]}, ${d.getDate()} de ${MN[d.getMonth()]}</div>
-        <div style="margin-top:5px">${statusBadge}</div>
+        <div class="bk-patient">Paciente: <span>${esc(b.patientName||'Sin asignar')}</span></div>
       </div>
-      ${canCancel?`<button class="btn-sm bsd" onclick="openCancel('${b.id}')">Cancelar</button>`:''}`;
+      ${statusBadge}`;
     return item;
   };
   if(upcoming.length){
@@ -1210,10 +1262,13 @@ window.openBlockModal=()=>{
   document.getElementById('blkDateEnd').value=today;
   document.getElementById('blkType').value='day';
   document.getElementById('blkRoom').value='all';
+  document.getElementById('blkApplyTo').value='todos_profesionales';
   document.getElementById('blkReason').value='';
+  renderBlockProfessionals();
+  document.querySelectorAll('#blkProsList input').forEach(ch=>ch.checked=false);
   const sel=document.getElementById('blkHour');sel.innerHTML='';
   HOURS.forEach(h=>{const o=document.createElement('option');o.value=h;o.textContent=h;sel.appendChild(o);});
-  toggleBlkType();openOv('blockOv');
+  toggleBlkType();toggleBlockProfessionals();openOv('blockOv');
 };
 window.blkDateSync=()=>{
   const start=document.getElementById('blkDate').value;
@@ -1229,21 +1284,39 @@ window.confirmBlock=async()=>{
   const dateEnd=document.getElementById('blkDateEnd').value||dateStart;
   const hour=document.getElementById('blkHour').value;
   const room=document.getElementById('blkRoom').value;
+  const aplicaA=document.getElementById('blkApplyTo').value;
+  const profesionalesIds=[...document.querySelectorAll('#blkProsList input:checked')].map(ch=>ch.value);
   const reason=document.getElementById('blkReason').value.trim();
   if(!dateStart){toast('Seleccioná una fecha','err');return;}
   if(dateEnd<dateStart){toast('La fecha fin debe ser igual o posterior al inicio','err');return;}
+  if(aplicaA==='profesionales_especificos'&&!profesionalesIds.length){toast('Seleccioná al menos un profesional','err');return;}
   // Build list of dates in range
   const dates=[];
   const cur=new Date(dateStart+'T12:00:00');
   const end=new Date(dateEnd+'T12:00:00');
   while(cur<=end){dates.push(dk(new Date(cur)));cur.setDate(cur.getDate()+1);}
-  const conflicts=activeBks().filter(b=>dates.includes(b.date)&&(type==='day'||b.hour===hour)&&(room==='all'||String(b.room)===String(room)));
+  const conflicts=activeBks().filter(b=>dates.includes(b.date)&&(type==='day'||b.hour===hour)&&(room==='all'||String(b.room)===String(room))&&(aplicaA==='todos_profesionales'||profesionalesIds.includes(b.userId)));
   if(conflicts.length){toast(`No se puede bloquear: hay ${conflicts.length} turno${conflicts.length!==1?'s':''} activo${conflicts.length!==1?'s':''}`,'err');return;}
   let created=0;
   for(const date of dates){
-    const dup=allBlocks.some(b=>b.date===date&&b.type===type&&(type==='day'?b.room===room:b.hour===hour&&b.room===room));
+    const dup=allBlocks.some(raw=>{
+      const b=normBlock(raw);
+      const sameTime=date>=b.date&&date<=b.dateEnd&&b.type===type&&(type==='day'||b.hour===hour);
+      const sameRoom=b.room===room;
+      const sameScope=b.aplicaA===aplicaA&&(aplicaA==='todos_profesionales'||profesionalesIds.length===b.profesionalesIds.length&&profesionalesIds.every(id=>b.profesionalesIds.includes(id)));
+      return sameTime&&sameRoom&&sameScope;
+    });
     if(dup)continue;
-    await addDoc(collection(db,'blocks'),{type,date,hour:type==='slot'?hour:'',room,reason,createdBy:CUProfile.name||CUProfile.email,createdAt:serverTimestamp()});
+    await addDoc(collection(db,'blocks'),{
+      type,date,hour:type==='slot'?hour:'',room,reason,
+      tipo:type==='day'?'dia_completo':'horario_especifico',
+      desde:date,hasta:date,
+      consultorioId:room==='all'?'todos':`consultorio_${room}`,
+      aplicaA,
+      profesionalesIds:aplicaA==='todos_profesionales'?[]:profesionalesIds,
+      creadoEn:serverTimestamp(),
+      createdBy:CUProfile.name||CUProfile.email,createdAt:serverTimestamp()
+    });
     created++;
   }
   closeOv('blockOv');
@@ -1257,7 +1330,7 @@ function renderBlocks(){
     <div class="sc"><div class="sc-top"><div class="sc-lbl">Días</div><div class="sc-ico ia">📅</div></div><div class="sc-val">${allBlocks.filter(b=>b.type==='day').length}</div><div class="sc-sub">Completos</div></div>
     <div class="sc"><div class="sc-top"><div class="sc-lbl">Horarios</div><div class="sc-ico iv">⏰</div></div><div class="sc-val">${allBlocks.filter(b=>b.type==='slot').length}</div><div class="sc-sub">Específicos</div></div>`;
   const tf=document.getElementById('blkTypeF').value;const rf=document.getElementById('blkRoomF').value;
-  let filtered=allBlocks.filter(b=>(!tf||b.type===tf)&&(!rf||String(b.room)===rf)).sort((a,b)=>a.date.localeCompare(b.date));
+  let filtered=allBlocks.map(normBlock).filter(b=>(!tf||b.type===tf)&&(!rf||String(b.room)===rf)).sort((a,b)=>a.date.localeCompare(b.date));
   document.getElementById('blocksCountLbl').textContent=filtered.length+' bloqueo'+(filtered.length!==1?'s':'');
   const list=document.getElementById('blkList');list.innerHTML='';
   if(!filtered.length){list.innerHTML='<div class="empty" style="padding:28px 20px"><div class="empty-i">🔓</div><div class="empty-t">Sin bloqueos</div></div>';}
@@ -1265,9 +1338,10 @@ function renderBlocks(){
     const d=new Date(b.date+'T12:00:00');
     const row=document.createElement('div');row.className='blk-row';
     const roomLbl=b.room==='all'?'Todos los consultorios':('C'+b.room);
+    const proLbl=b.aplicaA==='todos_profesionales'?'Todos los profesionales':(b.profesionalesIds||[]).map(id=>(allUsers.find(u=>u.uid===id)?.name||allUsers.find(u=>u.uid===id)?.email||'Profesional')).join(', ');
     row.innerHTML=`<div class="blk-ico">${b.type==='day'?'📅':'⏰'}</div>
       <div class="blk-info"><div class="blk-main">${d.getDate()} ${MN[d.getMonth()]} ${d.getFullYear()} — ${b.type==='day'?'Día completo':b.hour+' hs'}</div>
-      <div class="blk-sub">${roomLbl}${b.reason?' - '+esc(b.reason):''}</div></div>
+      <div class="blk-sub">${roomLbl} · ${esc(proLbl)}${b.reason?' - '+esc(b.reason):''}</div></div>
       <button class="blk-del" onclick="deleteBlock('${jsStr(b.id)}')">✕</button>`;
     list.appendChild(row);
   });
@@ -1326,17 +1400,22 @@ function openBook(date,hour,fR){
   document.getElementById('bookSub').textContent=`${DL[d.getDay()]}, ${d.getDate()} de ${MN[d.getMonth()]}`;
   const sel=document.getElementById('bookRoomSel');sel.innerHTML='';
   fR.forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent='Consultorio '+r;sel.appendChild(o);});
+  document.getElementById('bookPatientName').value='';
   openOv('bookOv');
 }
 window.confirmBook=async()=>{
   if(!pBook)return;
   if(isPastSlot(pBook.date,pBook.hour)){toast('No se puede reservar un horario pasado','err');closeOv('bookOv');pBook=null;return;}
   const room=parseInt(document.getElementById('bookRoomSel').value);
+  const patientName=document.getElementById('bookPatientName').value.trim();
+  if(!patientName){toast('Ingresá el nombre del paciente','err');return;}
   const dup=activeBks().find(b=>b.date===pBook.date&&b.hour===pBook.hour&&b.room===room);
   if(dup){toast('Ese horario ya fue reservado','err');closeOv('bookOv');return;}
+  const blocked=allBlocks.some(bl=>blockMatchesTurn(bl,pBook.date,pBook.hour,room,CU.uid));
+  if(blocked){toast('No se puede asignar este turno porque el consultorio o profesional tiene un bloqueo activo en ese horario.','err');closeOv('bookOv');return;}
   await addDoc(collection(db,'bookings'),{
     date:pBook.date,hour:pBook.hour,room,
-    userId:CU.uid,userName:CUProfile.name||CUProfile.email,
+    userId:CU.uid,userName:CUProfile.name||CUProfile.email,patientName,
     locked:false,paid:false,createdAt:serverTimestamp()
   });
   closeOv('bookOv');pBook=null;toast(`Consultorio ${room} reservado ✓`,'ok');
@@ -1493,11 +1572,3 @@ window.setMNI=function(btn){
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
