@@ -361,6 +361,29 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 .kpi-val{font-size:22px;font-weight:800;color:var(--ink);}
 .kpi-lbl{font-size:10px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:.4px;margin-top:3px;}
 
+/* ── CONTROLES DE HISTORIAL Y FECHAS ── */
+.my-more-btn{align-self:center;margin:8px auto 2px;padding:9px 18px;border:1.5px solid var(--border);border-radius:var(--rpill);background:var(--white);color:var(--accent);font-size:12px;font-weight:800;font-family:'Manrope',sans-serif;cursor:pointer;box-shadow:var(--s1);transition:all var(--t);}
+.my-more-btn:hover{border-color:var(--accent);background:var(--accent-xlight);transform:translateY(-1px);box-shadow:var(--s2);}
+.metrics-controls{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;}
+.metric-date-filter{display:flex;align-items:flex-end;gap:7px;flex-wrap:wrap;padding:7px 8px;border:1px solid var(--border);border-radius:var(--r16);background:rgba(255,255,255,.72);box-shadow:var(--s1);transition:border-color var(--t),box-shadow var(--t);}
+.metric-date-filter.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);}
+.metric-date-field{display:flex;flex-direction:column;gap:3px;}
+.metric-date-field label{font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--ink4);padding-left:3px;}
+.metric-date-input{height:34px;padding:0 10px;border:1.5px solid var(--border);border-radius:10px;background:var(--white);color:var(--ink2);font-size:11px;font-weight:700;font-family:'Manrope',sans-serif;outline:none;transition:border-color var(--t),box-shadow var(--t);}
+.metric-date-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);}
+.metric-date-actions{display:flex;align-items:center;gap:5px;}
+.metric-apply,.metric-clear{height:34px;padding:0 13px;border-radius:var(--rpill);font-size:11px;font-weight:800;font-family:'Manrope',sans-serif;cursor:pointer;transition:all var(--t);}
+.metric-apply{border:none;background:var(--accent);color:#fff;box-shadow:0 3px 10px rgba(26,79,232,.22);}
+.metric-apply:hover{background:var(--accent2);transform:translateY(-1px);}
+.metric-clear{border:1.5px solid var(--border);background:var(--white);color:var(--ink3);}
+.metric-clear:hover{border-color:var(--rose);color:var(--rose);}
+.metric-filter-summary{display:none;align-items:center;justify-content:space-between;gap:12px;margin:-8px 0 16px;padding:10px 14px;border:1px solid #C7D2FE;border-radius:var(--r12);background:var(--accent-xlight);color:var(--ink3);font-size:11px;font-weight:650;}
+.metric-filter-summary.show{display:flex;}
+.metric-filter-summary strong{color:var(--accent3);}
+.metric-filter-count{padding:3px 9px;border-radius:var(--rpill);background:var(--white);color:var(--accent);font-weight:800;white-space:nowrap;}
+@media(max-width:900px){.metrics-controls{width:100%;justify-content:flex-start;}.metric-date-filter{width:100%;}.metric-date-field{flex:1;min-width:140px;}.metric-date-input{width:100%;}}
+@media(max-width:560px){.metric-date-filter{align-items:stretch;}.metric-date-field{min-width:calc(50% - 4px);}.metric-date-actions{width:100%;}.metric-apply,.metric-clear{flex:1;}.metric-filter-summary{align-items:flex-start;flex-direction:column;}}
+
 /* ── PILLS / BUTTONS ── */
 .pill{font-size:10px;font-weight:800;padding:3px 9px;border-radius:var(--rpill);display:inline-block;}
 .p-adm{background:var(--amber-light);color:#92400E;}.p-usr{background:var(--accent-light);color:var(--accent3);}
@@ -572,12 +595,29 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
     <div class="view" id="metricsView">
       <div class="pg-hd">
         <div><div class="pg-title">Métricas del Sistema</div><div class="pg-sub">Análisis de ocupación y uso</div></div>
-        <div class="pg-acts"><div class="period-tabs">
-          <button class="ptab active" onclick="setMP('week',this)">Semana</button>
-          <button class="ptab" onclick="setMP('month',this)">Mes</button>
-          <button class="ptab" onclick="setMP('all',this)">Total</button>
-        </div></div>
+        <div class="pg-acts metrics-controls">
+          <div class="period-tabs">
+            <button class="ptab active" data-metric-period="week" onclick="setMP('week',this)">Semana</button>
+            <button class="ptab" data-metric-period="month" onclick="setMP('month',this)">Mes</button>
+            <button class="ptab" data-metric-period="all" onclick="setMP('all',this)">Total</button>
+          </div>
+          <div class="metric-date-filter" id="metricDateFilter">
+            <div class="metric-date-field">
+              <label for="metDateFrom">Desde</label>
+              <input type="date" class="metric-date-input" id="metDateFrom" onchange="syncMetricDateBounds()">
+            </div>
+            <div class="metric-date-field">
+              <label for="metDateTo">Hasta</label>
+              <input type="date" class="metric-date-input" id="metDateTo" onchange="syncMetricDateBounds()">
+            </div>
+            <div class="metric-date-actions">
+              <button class="metric-apply" onclick="applyMetricDateFilter()">Aplicar</button>
+              <button class="metric-clear" onclick="clearMetricDateFilter()">Limpiar</button>
+            </div>
+          </div>
+        </div>
       </div>
+      <div class="metric-filter-summary" id="metricFilterSummary"></div>
       <div class="stats-row" id="metStats"></div>
       <div class="metrics-grid" id="metricsGrid"></div>
     </div>
@@ -747,7 +787,7 @@ const PROF_SLOT_COLORS=[
 
 // ── STATE ──
 let CU=null, CUProfile=null, wOff=0, selR=0;
-let pBook=null, pCancel=null, metP='week', reminderBkId=null, reminderTimer=null;
+let pBook=null, pCancel=null, metP='week', metDateFrom='', metDateTo='', showAllPastBookings=false, reminderBkId=null, reminderTimer=null;
 let allBks=[], allUsers=[], allBlocks=[];
 let unsubBks=null, unsubUsers=null, unsubBlocks=null;
 
@@ -1174,9 +1214,19 @@ function renderMy(){
     list.appendChild(hd);upcoming.forEach(b=>list.appendChild(mkCard(b)));
   }
   if(past.length){
+    if(past.length<=10)showAllPastBookings=false;
     const hd=document.createElement('div');hd.className='bk-section-hd';hd.style.marginTop='18px';hd.textContent='Pasados';
-    list.appendChild(hd);past.slice(0,10).forEach(b=>list.appendChild(mkCard(b)));
-    if(past.length>10){const more=document.createElement('div');more.style.cssText='text-align:center;padding:10px;font-size:12px;color:var(--ink4);font-weight:600;';more.textContent=`+${past.length-10} más`;list.appendChild(more);}
+    list.appendChild(hd);
+    const visiblePast=showAllPastBookings?past:past.slice(0,10);
+    visiblePast.forEach(b=>list.appendChild(mkCard(b)));
+    if(past.length>10){
+      const more=document.createElement('button');
+      more.type='button';
+      more.className='my-more-btn';
+      more.textContent=showAllPastBookings?'Mostrar menos':`+${past.length-10} más`;
+      more.onclick=()=>{showAllPastBookings=!showAllPastBookings;renderMy();if(!showAllPastBookings)document.getElementById('myView').scrollIntoView({behavior:'smooth',block:'start'});};
+      list.appendChild(more);
+    }
   }
   updBadge();
 }
@@ -1349,8 +1399,56 @@ function renderBlocks(){
 window.deleteBlock=async id=>{await deleteDoc(doc(db,'blocks',id));toast('Bloqueo eliminado','ok');};
 
 // ── MÉTRICAS ──
-window.setMP=(p,btn)=>{metP=p;document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderMetrics();};
-function getBP(){const wk=getWkKeys();const mn=getMonthPfx();if(metP==='week')return activeBks().filter(b=>wk.includes(b.date));if(metP==='month')return activeBks().filter(b=>b.date.startsWith(mn));return activeBks();}
+window.syncMetricDateBounds=()=>{
+  const from=document.getElementById('metDateFrom');
+  const to=document.getElementById('metDateTo');
+  if(!from||!to)return;
+  if(from.value)to.min=from.value;else to.removeAttribute('min');
+  if(to.value)from.max=to.value;else from.removeAttribute('max');
+};
+window.setMP=(p,btn)=>{
+  metP=p;metDateFrom='';metDateTo='';
+  const from=document.getElementById('metDateFrom');const to=document.getElementById('metDateTo');
+  if(from){from.value='';from.removeAttribute('max');}
+  if(to){to.value='';to.removeAttribute('min');}
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderMetrics();
+};
+window.applyMetricDateFilter=()=>{
+  const from=document.getElementById('metDateFrom')?.value||'';
+  const to=document.getElementById('metDateTo')?.value||'';
+  if(!from||!to){toast('Seleccioná una fecha desde y una fecha hasta','warn');return;}
+  if(from>to){toast('La fecha desde no puede ser posterior a la fecha hasta','err');return;}
+  metDateFrom=from;metDateTo=to;metP='custom';
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+  renderMetrics();
+};
+window.clearMetricDateFilter=()=>{
+  metDateFrom='';metDateTo='';metP='week';
+  const from=document.getElementById('metDateFrom');const to=document.getElementById('metDateTo');
+  if(from){from.value='';from.removeAttribute('max');}
+  if(to){to.value='';to.removeAttribute('min');}
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.toggle('active',b.dataset.metricPeriod==='week'));
+  renderMetrics();
+};
+function getBP(){
+  const live=activeBks();const wk=getWkKeys();const mn=getMonthPfx();
+  if(metP==='custom')return live.filter(b=>b.date>=metDateFrom&&b.date<=metDateTo);
+  if(metP==='week')return live.filter(b=>wk.includes(b.date));
+  if(metP==='month')return live.filter(b=>b.date.startsWith(mn));
+  return live;
+}
+function metricDateLabel(key){
+  if(!key)return'';
+  const d=new Date(key+'T12:00:00');
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+function inclusiveDays(from,to){
+  if(!from||!to)return 0;
+  const a=new Date(from+'T12:00:00');const b=new Date(to+'T12:00:00');
+  return Math.max(1,Math.round((b-a)/86400000)+1);
+}
 function renderMetrics(){
   if(CUProfile.role!=='admin')return;
   const pbks=getBP();const today=todK();
@@ -1358,7 +1456,22 @@ function renderMetrics(){
   const todBks=liveBks.filter(b=>b.date===today);const totalSlots=ROOMS.length*HOURS.length;
   const occPct=totalSlots>0?Math.round(todBks.length/totalSlots*100):0;
   const wkBks=liveBks.filter(b=>getWkKeys().includes(b.date));const mnBks=liveBks.filter(b=>b.date.startsWith(getMonthPfx()));
-  document.getElementById('metStats').innerHTML=`
+  const isCustom=metP==='custom';
+  const customDays=isCustom?inclusiveDays(metDateFrom,metDateTo):0;
+  const customPros=isCustom?new Set(pbks.map(b=>b.userId||b.userName).filter(Boolean)).size:0;
+  const customAvg=isCustom&&customDays?(pbks.length/customDays).toFixed(1):'0.0';
+  const summary=document.getElementById('metricFilterSummary');
+  const dateBox=document.getElementById('metricDateFilter');
+  if(dateBox)dateBox.classList.toggle('active',isCustom);
+  if(summary){
+    summary.classList.toggle('show',isCustom);
+    summary.innerHTML=isCustom?`<span><strong>Período personalizado:</strong> ${metricDateLabel(metDateFrom)} al ${metricDateLabel(metDateTo)}</span><span class="metric-filter-count">${pbks.length} turno${pbks.length!==1?'s':''}</span>`:'';
+  }
+  document.getElementById('metStats').innerHTML=isCustom?`
+    <div class="sc"><div class="sc-top"><div class="sc-lbl">Período filtrado</div><div class="sc-ico ia">📅</div></div><div class="sc-val">${pbks.length}</div><div class="sc-sub">Turnos encontrados</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-lbl">Días incluidos</div><div class="sc-ico ie">📆</div></div><div class="sc-val">${customDays}</div><div class="sc-sub">Días calendario</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-lbl">Promedio diario</div><div class="sc-ico iv">📈</div></div><div class="sc-val">${customAvg}</div><div class="sc-sub">Turnos por día</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-lbl">Profesionales</div><div class="sc-ico io">🗂</div></div><div class="sc-val">${customPros}</div><div class="sc-sub">Con actividad</div></div>`:`
     <div class="sc"><div class="sc-top"><div class="sc-lbl">Hoy</div><div class="sc-ico ia">📅</div></div><div class="sc-val">${todBks.length}</div><div class="sc-sub">${occPct}% ocupación</div></div>
     <div class="sc"><div class="sc-top"><div class="sc-lbl">Esta semana</div><div class="sc-ico ie">📆</div></div><div class="sc-val">${wkBks.length}</div><div class="sc-sub">Turnos</div></div>
     <div class="sc"><div class="sc-top"><div class="sc-lbl">Este mes</div><div class="sc-ico iv">📈</div></div><div class="sc-val">${mnBks.length}</div><div class="sc-sub">Turnos</div></div>
@@ -1370,14 +1483,20 @@ function renderMetrics(){
   const maxH=Math.max(...Object.values(hourMap),1);
   const freeToday=totalSlots-todBks.length;
   const uniqDays=Object.keys(pbks.reduce((a,b)=>{a[b.date]=1;return a;},{}));
-  const avgPerDay=uniqDays.length?(pbks.length/uniqDays.length).toFixed(1):0;
-  const busyHour=Object.entries(hourMap).sort((a,b)=>b[1]-a[1])[0];
-  const topRoom=[...roomOcc].sort((a,b)=>b.n-a.n)[0];
+  const avgPerDay=isCustom&&customDays?(pbks.length/customDays).toFixed(1):(uniqDays.length?(pbks.length/uniqDays.length).toFixed(1):0);
+  const customCapacity=isCustom?customDays*totalSlots:0;
+  const donutOccupied=isCustom?pbks.length:todBks.length;
+  const donutFree=isCustom?Math.max(0,customCapacity-pbks.length):freeToday;
+  const donutTitle=isCustom?'Ocupación del período':'Ocupación hoy';
+  const busyHourCandidate=Object.entries(hourMap).sort((a,b)=>b[1]-a[1])[0];
+  const busyHour=busyHourCandidate&&busyHourCandidate[1]>0?busyHourCandidate:null;
+  const topRoomCandidate=[...roomOcc].sort((a,b)=>b.n-a.n)[0];
+  const topRoom=topRoomCandidate&&topRoomCandidate.n>0?topRoomCandidate:null;
   const dayMap={};DS.forEach(d=>dayMap[d]=0);pbks.forEach(b=>{const dIdx=new Date(b.date+'T12:00:00').getDay();dayMap[DS[dIdx]]++;});
   const maxDay=Math.max(...Object.values(dayMap),1);
   const mg=document.getElementById('metricsGrid');mg.innerHTML='';
   mg.innerHTML+=`<div class="mc sp2"><div class="mc-title"><div class="mc-ico ia">📊</div>Ocupación por consultorio</div><div class="bar-chart">${ROOMS.map((r,i)=>{const o=roomOcc.find(x=>x.r===r)||{n:0,pct:0};return`<div class="bar-row"><div class="bar-lbl">Consultorio ${r}</div><div class="bar-track"><div class="bar-fill" style="width:${o.pct}%;background:${RC_COLORS[i]}"></div></div><div class="bar-n">${o.n}</div><div class="bar-pct">${o.pct}%</div></div>`;}).join('')}</div></div>`;
-  mg.innerHTML+=`<div class="mc"><div class="mc-title"><div class="mc-ico ie">◐</div>Ocupación hoy</div><div class="donut-wrap">${mkDonut(todBks.length,freeToday)}<div class="donut-leg"><div class="dl-item"><div class="dl-dot" style="background:var(--accent)"></div>Ocupados<span class="dl-val">${todBks.length}</span></div><div class="dl-item"><div class="dl-dot" style="background:var(--emerald)"></div>Libres<span class="dl-val">${freeToday}</span></div><div class="dl-item"><div class="dl-dot" style="background:var(--bg2)"></div>Total<span class="dl-val">${totalSlots}</span></div></div></div></div>`;
+  mg.innerHTML+=`<div class="mc"><div class="mc-title"><div class="mc-ico ie">◐</div>${donutTitle}</div><div class="donut-wrap">${mkDonut(donutOccupied,donutFree)}<div class="donut-leg"><div class="dl-item"><div class="dl-dot" style="background:var(--accent)"></div>Ocupados<span class="dl-val">${donutOccupied}</span></div><div class="dl-item"><div class="dl-dot" style="background:var(--emerald)"></div>Libres<span class="dl-val">${donutFree}</span></div><div class="dl-item"><div class="dl-dot" style="background:var(--bg2)"></div>Total<span class="dl-val">${donutOccupied+donutFree}</span></div></div></div></div>`;
   mg.innerHTML+=`<div class="mc"><div class="mc-title"><div class="mc-ico io">⚡</div>Indicadores clave</div><div class="kpi-row"><div class="kpi"><div class="kpi-val">${avgPerDay}</div><div class="kpi-lbl">Turnos/día</div></div><div class="kpi"><div class="kpi-val">${busyHour?busyHour[0].slice(0,5):'—'}</div><div class="kpi-lbl">Hora top</div></div><div class="kpi"><div class="kpi-val" style="color:var(--accent)">C${topRoom?topRoom.r:'—'}</div><div class="kpi-lbl">Consul. top</div></div></div></div>`;
   mg.innerHTML+=`<div class="mc"><div class="mc-title"><div class="mc-ico iv">🏆</div>Top profesionales</div><div class="top-list">${topPros.length?topPros.map((p,i)=>`<div class="top-item"><div class="top-rank ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i+1}</div><div class="top-nm">${esc(sN(p.name))}</div><div class="top-cnt">${p.n}</div></div>`).join(''):'<div style="color:var(--ink4);font-size:13px;padding:10px 0">Sin datos</div>'}</div></div>`;
   mg.innerHTML+=`<div class="mc sp2"><div class="mc-title"><div class="mc-ico io">🕐</div>Mapa de calor</div><div class="heatmap">${HOURS.map(h=>{const v=hourMap[h];const p=v/maxH;const cls=p===0?'hm0':p<.25?'hm1':p<.5?'hm2':p<.75?'hm3':'hm4';return`<div class="hmc ${cls}" title="${h}: ${v}">${h.slice(0,5)}</div>`;}).join('')}</div></div>`;
