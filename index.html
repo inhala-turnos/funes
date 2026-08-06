@@ -725,7 +725,7 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 import { initializeApp, deleteApp }                   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword,
          signOut, onAuthStateChanged,
-         createUserWithEmailAndPassword }             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+         createUserWithEmailAndPassword, deleteUser } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, doc,
          getDocs, getDoc, setDoc, addDoc,
          deleteDoc, updateDoc, onSnapshot,
@@ -1598,37 +1598,61 @@ document.querySelectorAll('#permRow .perm-tag').forEach(t=>t.addEventListener('c
 window.saveUser=async()=>{
   const uid=document.getElementById('eUid').value;
   const name=document.getElementById('uName').value.trim();
-  const email=document.getElementById('uEmail').value.trim();
+  const email=document.getElementById('uEmail').value.trim().toLowerCase();
   const pass=document.getElementById('uPass').value;
   const role=document.getElementById('uRole').value;
   const perms=[...document.querySelectorAll('#permRow .perm-tag.on')].map(t=>t.dataset.p);
+  const saveBtn=document.querySelector('#userOv .btn-mok');
   if(!name||!email){toast('Completá nombre y email','err');return;}
+  if(!uid&&pass.length<6){toast('La contraseña debe tener al menos 6 caracteres','err');return;}
+  if(saveBtn?.disabled)return;
+  if(saveBtn){saveBtn.disabled=true;saveBtn.textContent='Guardando…';}
   if(uid){
-    // Editar perfil existente en Firestore
-    const updates={name,role,perms};
-    await updateDoc(doc(db,'users',uid),updates);
-    toast('Actualizado ✓','ok');
+    try{
+      // Editar perfil existente en Firestore
+      await updateDoc(doc(db,'users',uid),{name,role,perms});
+      toast('Actualizado ✓','ok');
+      closeOv('userOv');
+    }catch(e){
+      toast('No se pudo actualizar el profesional. Revisá los permisos de Firestore.','err');
+      console.error('Error al actualizar profesional',e);
+    }finally{
+      if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Guardar';}
+    }
+    return;
   }else{
     // Crear usuario en Firebase Auth + perfil en Firestore
-    if(!pass){toast('Ingresá una contraseña','err');return;}
+    let secondaryApp=null;
+    let createdUser=null;
     try{
-      const secondaryApp=initializeApp(FIREBASE_CONFIG,'userCreation-'+Date.now());
+      secondaryApp=initializeApp(FIREBASE_CONFIG,'userCreation-'+Date.now());
       const secondaryAuth=getAuth(secondaryApp);
+      const cred=await createUserWithEmailAndPassword(secondaryAuth,email,pass);
+      createdUser=cred.user;
       try{
-        const cred=await createUserWithEmailAndPassword(secondaryAuth,email,pass);
-        await setDoc(doc(db,'users',cred.user.uid),{name,email,role,perms,createdAt:serverTimestamp()});
-        await signOut(secondaryAuth);
-        await deleteApp(secondaryApp);
-        toast('Profesional creado OK','ok');
-      }catch(err){
-        await deleteApp(secondaryApp).catch(()=>{});
-        throw err;
+        await setDoc(doc(db,'users',createdUser.uid),{name,email,role,perms,createdAt:serverTimestamp()});
+      }catch(profileError){
+        // Evita que quede una cuenta de acceso sin perfil ni permisos.
+        await deleteUser(createdUser).catch(()=>{});
+        throw profileError;
       }
+      toast('Profesional creado OK','ok');
+      closeOv('userOv');
     }catch(e){
-      toast('Error al crear usuario: '+e.message,'err');return;
+      const messages={
+        'auth/email-already-in-use':'Ese email ya tiene un profesional registrado.',
+        'auth/weak-password':'La contraseña debe tener al menos 6 caracteres.',
+        'auth/operation-not-allowed':'Firebase no tiene habilitado el acceso por email y contraseña.',
+        'auth/unauthorized-domain':'Este dominio no está autorizado en Firebase Authentication.',
+        'permission-denied':'Firestore rechazó el perfil. Revisá las reglas de la colección users.'
+      };
+      toast(messages[e.code]||'No se pudo crear el profesional. '+e.message,'err');
+      console.error('Error al crear profesional',e);
+    }finally{
+      if(secondaryApp)await deleteApp(secondaryApp).catch(()=>{});
+      if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Guardar';}
     }
   }
-  closeOv('userOv');
 };
 window.openDelUser=(uid,name)=>{
   document.getElementById('dUid').value=uid;
