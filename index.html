@@ -444,6 +444,14 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 .mn-logout .mn-ico{color:#C0A0A0;}
 .mn-logout .mn-ico svg{fill:#C0A0A0;}
 @media(max-width:768px){.sidebar{display:none;}.main-area{padding:16px 14px 80px;}.mobile-nav{display:flex;}.toast-c{bottom:80px;right:16px;left:16px;}.toast{max-width:100%;}}
+.mb-days{display:flex;gap:6px;flex-wrap:wrap;}
+.mb-day-chip{border:1.5px solid var(--border);background:#FAFBFD;border-radius:var(--rpill);padding:8px 12px;font-size:12px;font-weight:700;color:var(--ink3);cursor:pointer;user-select:none;transition:all var(--t);}
+.mb-day-chip input{display:none;}
+.mb-day-chip.on{background:var(--accent-light);border-color:var(--accent);color:var(--accent);}
+.mb-preview{border:1.5px solid var(--border);background:#FAFBFD;border-radius:var(--r12);padding:12px 14px;font-size:12.5px;color:var(--ink3);margin-bottom:16px;max-height:160px;overflow-y:auto;}
+.mb-preview b{color:var(--ink);}
+.mb-preview ul{margin:6px 0 0;padding-left:18px;}
+.mb-preview li{margin-bottom:2px;}
 @media(max-width:560px){.mf-2col,.blk-date-range{grid-template-columns:1fr;}.modal{padding:26px 22px 22px;}.block-pro-option{padding:12px 10px;}}
 </style>
 </head>
@@ -538,6 +546,7 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
       <div class="pg-hd">
         <div><div class="pg-title" id="gridTitle">Agenda desde hoy</div><div class="pg-sub">Clic en un horario libre para reservar</div><div class="agenda-live" id="agendaLive"><i></i>Actualizando agenda</div></div>
         <div class="pg-acts">
+          <button class="btn-primary" id="btnMultiBook" style="display:none" onclick="openMultiBook()">📆 Reserva múltiple</button>
           <div class="legend-pills">
             <div class="lpill"><div class="ldot" style="background:var(--emerald)"></div>Libre</div>
             <div class="lpill"><div class="ldot" style="background:#94A3B8"></div>Bloqueado</div>
@@ -674,6 +683,25 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
   <div class="book-notice">💳 Abonar por transferencia al alias <strong>inhalaconsultorios</strong></div>
   <div class="modal-acts"><button class="btn-mc" onclick="closeOv('bookOv')">Cancelar</button><button class="btn-mok bm-green" onclick="confirmBook()">Confirmar</button></div></div>
 </div>
+<div class="overlay" id="multiBookOv">
+  <div class="modal modal-lg"><div class="modal-ico mie">📆</div><div class="modal-ttl">Reserva múltiple</div><div class="modal-sub">Reservá varios turnos de una sola vez eligiendo un rango de fechas y horarios.</div>
+  <div class="blk-date-range">
+    <div class="mf-group"><label class="mf-label">Desde</label><input class="mf-input" type="date" id="mbDateStart" onchange="mbDateSync()"></div>
+    <div class="mf-group"><label class="mf-label">Hasta</label><input class="mf-input" type="date" id="mbDateEnd"></div>
+  </div>
+  <div class="mf-group"><label class="mf-label">Días de la semana</label><div class="mb-days" id="mbDaysList"></div></div>
+  <div class="mf-2col">
+    <div class="mf-group"><label class="mf-label">Hora desde</label><select class="mf-select" id="mbHourStart"></select></div>
+    <div class="mf-group"><label class="mf-label">Hora hasta</label><select class="mf-select" id="mbHourEnd"></select></div>
+  </div>
+  <div class="mf-2col">
+    <div class="mf-group"><label class="mf-label">Consultorio</label><select class="mf-select" id="mbRoomSel"><option value="auto">El primero disponible</option></select></div>
+    <div class="mf-group"><label class="mf-label">Paciente</label><input class="mf-input" id="mbPatientName" placeholder="Nombre del paciente"></div>
+  </div>
+  <div class="mb-preview" id="mbPreview"></div>
+  <div class="book-notice">💳 Abonar por transferencia al alias <strong>inhalaconsultorios</strong></div>
+  <div class="modal-acts"><button class="btn-mc" onclick="closeOv('multiBookOv')">Cancelar</button><button class="btn-mok bm-green" id="mbConfirmBtn" onclick="confirmMultiBook()">Reservar todo</button></div></div>
+</div>
 <div class="overlay" id="cancelOv">
   <div class="modal"><div class="modal-ico mir">🗑</div><div class="modal-ttl">Cancelar turno</div><div class="modal-sub" id="cancelSub"></div>
   <div class="modal-acts"><button class="btn-mc" onclick="closeOv('cancelOv')">Mantener</button><button class="btn-mok bm-red" onclick="confirmCancel()">Sí, cancelar</button></div></div>
@@ -729,7 +757,7 @@ import { getAuth, signInWithEmailAndPassword,
 import { getFirestore, collection, doc,
          getDocs, getDoc, setDoc, addDoc,
          deleteDoc, updateDoc, onSnapshot,
-         query, where, serverTimestamp }              from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+         query, where, serverTimestamp, writeBatch }  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ── INIT ──
 const app  = initializeApp(FIREBASE_CONFIG);
@@ -882,6 +910,7 @@ async function startApp(){
   document.getElementById('sbName').textContent=CUProfile.name||CUProfile.email;
   document.getElementById('sbRole').textContent=CUProfile.role==='admin'?'Administrador':'Profesional';
   document.querySelectorAll('.admin-only').forEach(el=>el.style.display=CUProfile.role==='admin'?'':'none');
+  const mbBtn=document.getElementById('btnMultiBook');if(mbBtn)mbBtn.style.display=hasPerm('book')?'':'none';
   wOff=0;
   hideFinishedDays=true;
   agendaDayKey=todK();
@@ -1535,6 +1564,130 @@ window.confirmBook=async()=>{
     locked:false,paid:false,createdAt:serverTimestamp()
   });
   closeOv('bookOv');pBook=null;toast(`Consultorio ${room} reservado ✓`,'ok');
+};
+
+// ── MULTI BOOK (reserva por bloques) ──
+window.openMultiBook=()=>{
+  if(!hasPerm('book')){toast('Sin permiso para reservar','err');return;}
+  const today=dk(new Date());
+  const in7=dk(new Date(Date.now()+6*86400000));
+  document.getElementById('mbDateStart').value=today;
+  document.getElementById('mbDateEnd').value=in7;
+  document.getElementById('mbDateStart').min=today;
+  document.getElementById('mbDateEnd').min=today;
+  const dl=document.getElementById('mbDaysList');dl.innerHTML='';
+  DS.forEach((lbl,i)=>{
+    const id='mbDay'+i;
+    dl.innerHTML+=`<label class="mb-day-chip on" id="${id}"><input type="checkbox" value="${i}" checked onchange="mbToggleDay(${i})">${lbl}</label>`;
+  });
+  const hs=document.getElementById('mbHourStart'),he=document.getElementById('mbHourEnd');
+  hs.innerHTML='';he.innerHTML='';
+  HOURS.forEach(h=>{hs.innerHTML+=`<option value="${h}">${h}</option>`;he.innerHTML+=`<option value="${h}">${h}</option>`;});
+  he.value=HOURS[HOURS.length-1];
+  const rs=document.getElementById('mbRoomSel');rs.innerHTML='<option value="auto">El primero disponible</option>';
+  ROOMS.forEach(r=>rs.innerHTML+=`<option value="${r}">Consultorio ${r}</option>`);
+  document.getElementById('mbPatientName').value='';
+  ['mbDateStart','mbDateEnd','mbHourStart','mbHourEnd','mbRoomSel'].forEach(id=>document.getElementById(id).onchange=updMbPreview);
+  updMbPreview();
+  openOv('multiBookOv');
+};
+window.mbToggleDay=i=>{
+  const el=document.getElementById('mbDay'+i);
+  el.classList.toggle('on');
+  updMbPreview();
+};
+window.mbDateSync=()=>{
+  const start=document.getElementById('mbDateStart').value;
+  const end=document.getElementById('mbDateEnd').value;
+  if(end<start)document.getElementById('mbDateEnd').value=start;
+  updMbPreview();
+};
+function mbSelectedDays(){
+  return [...document.querySelectorAll('#mbDaysList input:checked')].map(ch=>parseInt(ch.value));
+}
+function mbDateList(){
+  const start=document.getElementById('mbDateStart').value;
+  const end=document.getElementById('mbDateEnd').value||start;
+  if(!start)return[];
+  const days=mbSelectedDays();
+  const dates=[];
+  const cur=new Date(start+'T12:00:00');
+  const last=new Date(end+'T12:00:00');
+  while(cur<=last){
+    if(days.includes(cur.getDay()))dates.push(dk(new Date(cur)));
+    cur.setDate(cur.getDate()+1);
+  }
+  return dates;
+}
+function mbHourList(){
+  const hs=document.getElementById('mbHourStart').value;
+  const he=document.getElementById('mbHourEnd').value;
+  return HOURS.filter(h=>h>=hs&&h<=he);
+}
+function updMbPreview(){
+  const dates=mbDateList();const hours=mbHourList();
+  const el=document.getElementById('mbPreview');
+  if(!dates.length||!hours.length){el.innerHTML='Seleccioná al menos un día y un rango de horarios válido.';return;}
+  const total=dates.length*hours.length;
+  el.innerHTML=`<b>${total} turno${total!==1?'s':''}</b> posibles: ${dates.length} día${dates.length!==1?'s':''} × ${hours.length} horario${hours.length!==1?'s':''}. Los que ya estén ocupados o bloqueados se omiten automáticamente.`;
+}
+window.confirmMultiBook=async()=>{
+  const dates=mbDateList();
+  const hours=mbHourList();
+  const roomSel=document.getElementById('mbRoomSel').value;
+  const patientName=document.getElementById('mbPatientName').value.trim();
+  if(!dates.length){toast('Seleccioná al menos un día de la semana','err');return;}
+  if(!hours.length){toast('Rango de horarios inválido','err');return;}
+  if(!patientName){toast('Ingresá el nombre del paciente','err');return;}
+  const btn=document.getElementById('mbConfirmBtn');
+  btn.disabled=true;btn.textContent='Reservando…';
+  let created=0,skippedPast=0,skippedBusy=0,skippedBlocked=0;
+  const pending=[];
+  for(const date of dates){
+    for(const hour of hours){
+      if(isPastSlot(date,hour)){skippedPast++;continue;}
+      let room=null;
+      const candidates=roomSel==='auto'?ROOMS:[parseInt(roomSel)];
+      for(const r of candidates){
+        const dup=activeBks().find(b=>b.date===date&&b.hour===hour&&b.room===r);
+        if(dup)continue;
+        const blocked=allBlocks.some(bl=>blockMatchesTurn(bl,date,hour,r,CU.uid));
+        if(blocked)continue;
+        room=r;break;
+      }
+      if(room===null){
+        const anyBusy=candidates.some(r=>activeBks().some(b=>b.date===date&&b.hour===hour&&b.room===r));
+        if(anyBusy)skippedBusy++;else skippedBlocked++;
+        continue;
+      }
+      pending.push({date,hour,room});
+    }
+  }
+  // Crear en lotes (límite de 500 operaciones por batch de Firestore)
+  for(let i=0;i<pending.length;i+=400){
+    const chunk=pending.slice(i,i+400);
+    const batch=writeBatch(db);
+    chunk.forEach(p=>{
+      const ref=doc(collection(db,'bookings'));
+      batch.set(ref,{
+        date:p.date,hour:p.hour,room:p.room,
+        userId:CU.uid,userName:CUProfile.name||CUProfile.email,patientName,
+        locked:false,paid:false,createdAt:serverTimestamp()
+      });
+    });
+    await batch.commit();
+    created+=chunk.length;
+  }
+  btn.disabled=false;btn.textContent='Reservar todo';
+  closeOv('multiBookOv');
+  const skippedTotal=skippedPast+skippedBusy+skippedBlocked;
+  if(created===0){
+    toast('No se pudo reservar ningún turno: todos estaban ocupados, bloqueados o pasados','err');
+  }else if(skippedTotal===0){
+    toast(`${created} turno${created!==1?'s':''} reservado${created!==1?'s':''} ✓`,'ok');
+  }else{
+    toast(`${created} reservado${created!==1?'s':''} ✓ · ${skippedTotal} omitido${skippedTotal!==1?'s':''} (ocupados/bloqueados)`,'warn');
+  }
 };
 
 // ── CANCEL ──
