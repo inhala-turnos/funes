@@ -248,6 +248,14 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
 .rs-chip.ongoing{background:#ECFDF5;color:#065F46;font-weight:800;border:1.5px solid #10B981;}
 .rs-chip.blkd{background:#F1F5F9;color:var(--ink4);}
 .bk-list{display:flex;flex-direction:column;gap:8px;}
+.my-bulk-bar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--accent-xlight);border:1px solid var(--accent-light);border-radius:var(--r16);padding:12px 16px;margin-bottom:14px;}
+.my-bulk-all{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink2);cursor:pointer;}
+.my-bulk-all input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;}
+.my-bulk-count{font-size:12px;font-weight:800;color:var(--accent2);background:#fff;border-radius:var(--rpill);padding:5px 12px;border:1px solid var(--accent-light);}
+.my-bulk-acts{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;}
+.my-bulk-acts .bsd:disabled{opacity:.4;cursor:not-allowed;}
+.bk-card{position:relative;}
+.bk-sel-chk{width:19px;height:19px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
 .bk-section-hd{font-size:10px;font-weight:800;color:var(--ink4);text-transform:uppercase;letter-spacing:.8px;padding:4px 2px 2px;}
 .bk-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r16);box-shadow:var(--s1);padding:14px 16px;display:flex;align-items:center;gap:12px;transition:box-shadow var(--t),transform var(--t);}
 .bk-card:hover{box-shadow:var(--s3);transform:translateY(-1px);}
@@ -576,7 +584,20 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
     </div>
 
     <div class="view" id="myView">
-      <div class="pg-hd"><div><div class="pg-title">Mis Turnos</div><div class="pg-sub">Tus reservas activas y pasadas</div></div></div>
+      <div class="pg-hd">
+        <div><div class="pg-title">Mis Turnos</div><div class="pg-sub">Tus reservas activas y pasadas</div></div>
+        <div class="pg-acts" id="myBulkToolbar">
+          <button class="btn-outline" id="myBulkToggleBtn" onclick="toggleMyBulkMode()" style="display:none">☑ Selección múltiple</button>
+        </div>
+      </div>
+      <div class="my-bulk-bar" id="myBulkBar" style="display:none">
+        <label class="my-bulk-all"><input type="checkbox" id="myBulkAllChk" onchange="toggleMySelAll(this.checked)"> Seleccionar todos los próximos</label>
+        <span class="my-bulk-count" id="myBulkCount">0 seleccionados</span>
+        <div class="my-bulk-acts">
+          <button class="btn-outline" onclick="toggleMyBulkMode()">Cancelar selección</button>
+          <button class="btn-sm bsd" id="myBulkDelBtn" onclick="openBulkCancelMy()" disabled style="padding:9px 18px;font-size:12px;">🗑 Quitar seleccionados</button>
+        </div>
+      </div>
       <div class="bk-list" id="myList"></div>
     </div>
 
@@ -706,6 +727,10 @@ body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);}
   <div class="modal"><div class="modal-ico mir">🗑</div><div class="modal-ttl">Cancelar turno</div><div class="modal-sub" id="cancelSub"></div>
   <div class="modal-acts"><button class="btn-mc" onclick="closeOv('cancelOv')">Mantener</button><button class="btn-mok bm-red" onclick="confirmCancel()">Sí, cancelar</button></div></div>
 </div>
+<div class="overlay" id="bulkCancelMyOv">
+  <div class="modal"><div class="modal-ico mir">🗑</div><div class="modal-ttl">Cancelar turnos seleccionados</div><div class="modal-sub" id="bulkCancelMySub"></div>
+  <div class="modal-acts"><button class="btn-mc" onclick="closeOv('bulkCancelMyOv')">Mantener</button><button class="btn-mok bm-red" id="bulkCancelMyConfirmBtn" onclick="confirmBulkCancelMy()">Sí, cancelar todos</button></div></div>
+</div>
 <div class="overlay" id="blockOv">
   <div class="modal modal-lg"><div class="modal-ico mio">🔒</div><div class="modal-ttl">Nuevo bloqueo</div><div class="modal-sub">Bloqueá un día completo o un horario específico. Podés seleccionar un rango de fechas.</div>
   <div class="mf-group"><label class="mf-label">Tipo</label><select class="mf-select" id="blkType" onchange="toggleBlkType()"><option value="day">Día completo</option><option value="slot">Horario específico</option></select></div>
@@ -795,6 +820,7 @@ const PROF_SLOT_COLORS=[
 // ── STATE ──
 let CU=null, CUProfile=null, wOff=0, selR=0, hideFinishedDays=true, agendaDayKey='';
 let pBook=null, pCancel=null, metP='week', metDateFrom='', metDateTo='', showAllPastBookings=false, reminderBkId=null, reminderTimer=null;
+let myBulkMode=false, mySel=new Set();
 let allBks=[], allUsers=[], allBlocks=[];
 let unsubBks=null, unsubUsers=null, unsubBlocks=null;
 
@@ -1209,9 +1235,25 @@ function renderMy(){
   const today=todK();const curH=curHourKey();
   const bks=activeBks().filter(b=>b.userId===CU.uid).sort((a,b)=>a.date.localeCompare(b.date)||a.hour.localeCompare(b.hour));
   const list=document.getElementById('myList');list.innerHTML='';
-  if(!bks.length){list.innerHTML='<div class="empty"><div class="empty-i">📭</div><div class="empty-t">Sin turnos reservados</div></div>';return;}
+  const toggleBtn=document.getElementById('myBulkToggleBtn');
+  const bulkBar=document.getElementById('myBulkBar');
+  if(!bks.length){
+    list.innerHTML='<div class="empty"><div class="empty-i">📭</div><div class="empty-t">Sin turnos reservados</div></div>';
+    if(toggleBtn)toggleBtn.style.display='none';
+    if(bulkBar)bulkBar.style.display='none';
+    return;
+  }
   const upcoming=bks.filter(b=>!isPastSlot(b.date,b.hour));
   const past=bks.filter(b=>isPastSlot(b.date,b.hour));
+  // Solo se pueden seleccionar turnos próximos, cancelables y que no estén en curso
+  const selectableIds=new Set(upcoming.filter(b=>hasPerm('cancel')&&!(b.date===today&&b.hour===curH)).map(b=>b.id));
+  // Limpiar de la selección turnos que ya no existen o dejaron de ser seleccionables
+  [...mySel].forEach(id=>{if(!selectableIds.has(id))mySel.delete(id);});
+  if(toggleBtn)toggleBtn.style.display=selectableIds.size?'':'none';
+  if(!selectableIds.size&&myBulkMode){myBulkMode=false;}
+  if(bulkBar)bulkBar.style.display=myBulkMode?'flex':'none';
+  if(toggleBtn)toggleBtn.textContent=myBulkMode?'✕ Salir de selección':'☑ Selección múltiple';
+
   const mkCard=b=>{
     const d=new Date(b.date+'T12:00:00');
     const isOngoing=b.date===today&&b.hour===curH;
@@ -1224,8 +1266,10 @@ function renderMy(){
     if(isOngoing) statusBadge='<span class="bk-status-pill bk-ongoing-pill">🔴 En curso</span>';
     else if(isPastB) statusBadge='<span class="bk-status-pill bk-past-pill">Pasado</span>';
     else statusBadge='<span class="bk-status-pill bk-future-pill">Próximo</span>';
-    const canCancel=hasPerm('cancel')&&!isPastB&&!isOngoing;
+    const selectable=myBulkMode&&selectableIds.has(b.id);
+    const checkboxHtml=selectable?`<input type="checkbox" class="bk-sel-chk" ${mySel.has(b.id)?'checked':''} onchange="toggleMySel('${jsStr(b.id)}',this.checked)">`:'';
     item.innerHTML=`
+      ${checkboxHtml}
       <div class="bk-badge" style="background:${isPastB?'#94A3B8':pc.lft}">C${b.room}</div>
       <div class="bk-flex">
         <div class="bk-main">Consultorio ${b.room} — ${b.hour} hs</div>
@@ -1254,8 +1298,92 @@ function renderMy(){
       list.appendChild(more);
     }
   }
+  updMyBulkBar(selectableIds);
   updBadge();
 }
+
+// ── CANCELACIÓN EN BLOQUE (Mis turnos) ──
+function updMyBulkBar(selectableIds){
+  const allChk=document.getElementById('myBulkAllChk');
+  const countEl=document.getElementById('myBulkCount');
+  const delBtn=document.getElementById('myBulkDelBtn');
+  if(!countEl)return;
+  const n=mySel.size;
+  countEl.textContent=n===1?'1 seleccionado':`${n} seleccionados`;
+  if(delBtn)delBtn.disabled=n===0;
+  if(allChk){
+    allChk.checked=selectableIds.size>0&&n===selectableIds.size;
+    allChk.indeterminate=n>0&&n<selectableIds.size;
+  }
+}
+window.toggleMyBulkMode=()=>{
+  myBulkMode=!myBulkMode;
+  if(!myBulkMode)mySel.clear();
+  renderMy();
+};
+window.toggleMySel=(id,checked)=>{
+  if(checked)mySel.add(id);else mySel.delete(id);
+  const today=todK();const curH=curHourKey();
+  const selectableIds=new Set(activeBks().filter(b=>b.userId===CU.uid&&!isPastSlot(b.date,b.hour)&&hasPerm('cancel')&&!(b.date===today&&b.hour===curH)).map(b=>b.id));
+  updMyBulkBar(selectableIds);
+};
+window.toggleMySelAll=checked=>{
+  const today=todK();const curH=curHourKey();
+  const selectable=activeBks().filter(b=>b.userId===CU.uid&&!isPastSlot(b.date,b.hour)&&hasPerm('cancel')&&!(b.date===today&&b.hour===curH));
+  if(checked)selectable.forEach(b=>mySel.add(b.id));else mySel.clear();
+  renderMy();
+};
+window.openBulkCancelMy=()=>{
+  if(!mySel.size)return;
+  document.getElementById('bulkCancelMySub').textContent=`Vas a cancelar ${mySel.size} turno${mySel.size!==1?'s':''}. Esta acción no se puede deshacer.`;
+  openOv('bulkCancelMyOv');
+};
+window.confirmBulkCancelMy=async()=>{
+  const ids=[...mySel];
+  if(!ids.length){closeOv('bulkCancelMyOv');return;}
+  closeOv('bulkCancelMyOv');
+  const btn=document.getElementById('bulkCancelMyConfirmBtn');
+  if(btn){btn.disabled=true;btn.textContent='Cancelando…';}
+  let done=0,failed=0;
+  for(let i=0;i<ids.length;i+=400){
+    const chunk=ids.slice(i,i+400);
+    const batch=writeBatch(db);
+    chunk.forEach(id=>{
+      batch.update(doc(db,'bookings',id),{
+        status:'cancelled',
+        cancelled:true,
+        cancelledAt:serverTimestamp(),
+        cancelledBy:CU.uid,
+        cancelledByName:CUProfile.name||CU.email
+      });
+    });
+    try{
+      await batch.commit();
+      done+=chunk.length;
+    }catch(e){
+      console.error('Error al cancelar en lote con writeBatch',e);
+      // Fallback: intentar uno por uno (por si el batch falla por permisos puntuales)
+      for(const id of chunk){
+        try{
+          await updateDoc(doc(db,'bookings',id),{
+            status:'cancelled',cancelled:true,cancelledAt:serverTimestamp(),
+            cancelledBy:CU.uid,cancelledByName:CUProfile.name||CU.email
+          });
+          done++;
+        }catch(e2){
+          try{await deleteDoc(doc(db,'bookings',id));done++;}
+          catch(e3){failed++;console.error('No se pudo cancelar',id,e3);}
+        }
+      }
+    }
+  }
+  if(btn){btn.disabled=false;btn.textContent='Sí, cancelar todos';}
+  mySel.clear();
+  myBulkMode=false;
+  renderMy();
+  if(failed===0)toast(`${done} turno${done!==1?'s':''} cancelado${done!==1?'s':''} ✓`,'ok');
+  else toast(`${done} cancelado${done!==1?'s':''} ✓ · ${failed} no se pudieron cancelar`,'warn');
+};
 
 function updBadge(){
   if(!CU||!CUProfile)return;
